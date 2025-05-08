@@ -17,23 +17,29 @@ public class BarbeariaController {
     @Autowired
     ClienteRepository repository;
 
-    @GetMapping("/barbearia/login")
-    public String mostrarLogin() {
+    @GetMapping("/barbearia/index")
+    public String mostrarIndex() {
         return "index";
     }
 
-    @PostMapping("/barbearia/login")
-public String processarLogin(@RequestParam String nomeCliente, @RequestParam String telefoneCliente) {
-    Optional<Cliente> usuarioOpt = repository.findByNomeClienteAndTelefoneCliente(nomeCliente, telefoneCliente);
+    @GetMapping("/barbearia/login")
+    public String mostrarLogin() {
+        return "login";
+    }
 
-    if (usuarioOpt.isPresent()) {
-        return "redirect:/barbearia/agendamento";
-    } else {
-        Cliente novoUsuario = new Cliente();
-        novoUsuario.setNomeCliente(nomeCliente);
-        novoUsuario.setTelefoneCliente(telefoneCliente);
-        repository.save(novoUsuario);
-        return "redirect:/barbearia/agendamento";
+
+    @PostMapping("/barbearia/login")
+    public String processarLogin(@RequestParam String nomeCliente, @RequestParam String telefoneCliente) {
+        Optional<Cliente> usuarioOpt = repository.findByNomeClienteAndTelefoneCliente(nomeCliente, telefoneCliente);
+
+        if (usuarioOpt.isPresent()) {
+            return "redirect:/barbearia/agendamento";
+        } else {
+            Cliente novoUsuario = new Cliente();
+            novoUsuario.setNomeCliente(nomeCliente);
+            novoUsuario.setTelefoneCliente(telefoneCliente);
+            repository.save(novoUsuario);
+            return "redirect:/barbearia/agendamento";
         }
     }
 

@@ -1,12 +1,10 @@
 package com.barbearia.agendamento.model;
 
-import java.util.List;
-
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
@@ -15,27 +13,28 @@ public class Cliente {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int idCliente;
+    private Integer idCliente;
+
+    @Column(nullable = false, length = 80)
     private String nomeCliente;
+
+    @Column(nullable = false, length = 15)
     private String telefoneCliente;
-
-    @OneToMany(mappedBy = "cliente")
-    private List<Agendamento> agendamentos;
-
-    public Cliente(String nomeCliente, String telefoneCliente, List<Agendamento> agendamentos) {
-        this.nomeCliente = nomeCliente;
-        this.telefoneCliente = telefoneCliente;
-        this.agendamentos = agendamentos;
-    }
 
     public Cliente() {
     }
 
-    public int getIdCliente() {
+    public Cliente(Integer idCliente, String nomeCliente, String telefoneCliente) {
+        this.idCliente = idCliente;
+        this.nomeCliente = nomeCliente;
+        this.telefoneCliente = telefoneCliente;
+    }
+
+    public Integer getIdCliente() {
         return idCliente;
     }
 
-    public void setIdCliente(int idCliente) {
+    public void setIdCliente(Integer idCliente) {
         this.idCliente = idCliente;
     }
 
@@ -53,14 +52,6 @@ public class Cliente {
 
     public void setTelefoneCliente(String telefoneCliente) {
         this.telefoneCliente = telefoneCliente;
-    }
-
-    public List<Agendamento> getAgendamentos() {
-        return agendamentos;
-    }
-
-    public void setAgendamentos(List<Agendamento> agendamentos) {
-        this.agendamentos = agendamentos;
     }
 
 }

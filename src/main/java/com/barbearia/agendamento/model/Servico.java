@@ -1,14 +1,11 @@
 package com.barbearia.agendamento.model;
 
 import java.math.BigDecimal;
-import java.util.List;
-
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
@@ -17,32 +14,32 @@ public class Servico {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int idCorte;
+    private Integer idCorte;
 
+    @Column(nullable = false, length = 50)
     private String nomeCorte;
+
+    @Column(nullable = false)
     private BigDecimal valorCorte;
+
+    @Column(nullable = false, length = 20)
     private String duracaoCorte;
 
-    @ManyToMany(mappedBy = "servicos")
-    private List<Funcionario> funcionarios;
+    public Servico() {
+    }
 
-    @OneToMany(mappedBy = "servico")
-    private List<Agendamento> agendamentos;
-
-    public Servico(String nomeCorte, BigDecimal valorCorte, String duracaoCorte) {
+    public Servico(Integer idCorte, String nomeCorte, BigDecimal valorCorte, String duracaoCorte) {
+        this.idCorte = idCorte;
         this.nomeCorte = nomeCorte;
         this.valorCorte = valorCorte;
         this.duracaoCorte = duracaoCorte;
     }
 
-    public Servico() {
-    }
-
-    public int getIdCorte() {
+    public Integer getIdCorte() {
         return idCorte;
     }
 
-    public void setIdCorte(int idCorte) {
+    public void setIdCorte(Integer idCorte) {
         this.idCorte = idCorte;
     }
 

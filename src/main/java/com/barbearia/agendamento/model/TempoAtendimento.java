@@ -16,18 +16,22 @@ public class TempoAtendimento {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int idAtendimento;
+    private Integer idAtendimento;
 
     @OneToOne
-    @JoinColumn(name = "id_agendamento")
+    @JoinColumn(name = "id_agendamento", nullable = false)
     private Agendamento agendamento;
+
     private LocalTime horaInicio;
     private LocalTime horaTermino;
-    private int duracaoAtendimento;
+    private Integer duracaoAtendimento;
     private String observacaoAtendimento;
 
-    public TempoAtendimento(int idAtendimento, Agendamento agendamento, LocalTime horaInicio, LocalTime horaTermino,
-            int duracaoAtendimento, String observacaoAtendimento) {
+    public TempoAtendimento() {
+    }
+
+    public TempoAtendimento(Integer idAtendimento, Agendamento agendamento, LocalTime horaInicio, LocalTime horaTermino,
+            Integer duracaoAtendimento, String observacaoAtendimento) {
         this.idAtendimento = idAtendimento;
         this.agendamento = agendamento;
         this.horaInicio = horaInicio;
@@ -36,14 +40,11 @@ public class TempoAtendimento {
         this.observacaoAtendimento = observacaoAtendimento;
     }
 
-    public TempoAtendimento() {
-    }
-
-    public int getIdAtendimento() {
+    public Integer getIdAtendimento() {
         return idAtendimento;
     }
 
-    public void setIdAtendimento(int idAtendimento) {
+    public void setIdAtendimento(Integer idAtendimento) {
         this.idAtendimento = idAtendimento;
     }
 
@@ -71,11 +72,11 @@ public class TempoAtendimento {
         this.horaTermino = horaTermino;
     }
 
-    public int getDuracaoAtendimento() {
+    public Integer getDuracaoAtendimento() {
         return duracaoAtendimento;
     }
 
-    public void setDuracaoAtendimento(int duracaoAtendimento) {
+    public void setDuracaoAtendimento(Integer duracaoAtendimento) {
         this.duracaoAtendimento = duracaoAtendimento;
     }
 

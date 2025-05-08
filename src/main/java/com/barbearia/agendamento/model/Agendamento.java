@@ -3,14 +3,14 @@ package com.barbearia.agendamento.model;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 @Entity
@@ -19,35 +19,42 @@ public class Agendamento {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int idAgendamento;
+    private Integer idAgendamento;
 
     @ManyToOne
-    @JoinColumn(name = "id_cliente")
+    @JoinColumn(name = "id_cliente", nullable = false)
     private Cliente cliente;
 
     @ManyToOne
-    @JoinColumn(name = "id_funcionario")
+    @JoinColumn(name = "id_funcionario", nullable = false)
     private Funcionario funcionario;
 
     @ManyToOne
-    @JoinColumn(name = "id_corte")
+    @JoinColumn(name = "id_corte", nullable = false)
     private Servico servico;
 
     private LocalDate dataAgendamento;
     private LocalTime horaAgendamento;
-    private String statusAgendamento;
+
+    @Enumerated(EnumType.STRING)
+    private StatusAgendamento statusAgendamento;
+
     private String observacaoAgendamento;
     private String formaPagamento;
 
-    @OneToOne(mappedBy = "agendamento", cascade = CascadeType.ALL)
-    private TempoAtendimento tempoAtendimento;
+    // Getters e Setters
 
-    @OneToOne(mappedBy = "agendamento", cascade = CascadeType.ALL)
-    private Chegada chegada;
+    public enum StatusAgendamento {
+        Agendado, Concluído, Cancelado
+    }
 
-    public Agendamento(Cliente cliente, Funcionario funcionario, Servico servico, LocalDate dataAgendamento,
-            LocalTime horaAgendamento, String statusAgendamento, String observacaoAgendamento, String formaPagamento,
-            TempoAtendimento tempoAtendimento, Chegada chegada) {
+    public Agendamento() {
+    }
+
+    public Agendamento(Integer idAgendamento, Cliente cliente, Funcionario funcionario, Servico servico,
+            LocalDate dataAgendamento, LocalTime horaAgendamento, StatusAgendamento statusAgendamento,
+            String observacaoAgendamento, String formaPagamento) {
+        this.idAgendamento = idAgendamento;
         this.cliente = cliente;
         this.funcionario = funcionario;
         this.servico = servico;
@@ -56,18 +63,13 @@ public class Agendamento {
         this.statusAgendamento = statusAgendamento;
         this.observacaoAgendamento = observacaoAgendamento;
         this.formaPagamento = formaPagamento;
-        this.tempoAtendimento = tempoAtendimento;
-        this.chegada = chegada;
     }
 
-    public Agendamento() {
-    }
-
-    public int getIdAgendamento() {
+    public Integer getIdAgendamento() {
         return idAgendamento;
     }
 
-    public void setIdAgendamento(int idAgendamento) {
+    public void setIdAgendamento(Integer idAgendamento) {
         this.idAgendamento = idAgendamento;
     }
 
@@ -111,11 +113,11 @@ public class Agendamento {
         this.horaAgendamento = horaAgendamento;
     }
 
-    public String getStatusAgendamento() {
+    public StatusAgendamento getStatusAgendamento() {
         return statusAgendamento;
     }
 
-    public void setStatusAgendamento(String statusAgendamento) {
+    public void setStatusAgendamento(StatusAgendamento statusAgendamento) {
         this.statusAgendamento = statusAgendamento;
     }
 
@@ -133,22 +135,6 @@ public class Agendamento {
 
     public void setFormaPagamento(String formaPagamento) {
         this.formaPagamento = formaPagamento;
-    }
-
-    public TempoAtendimento getTempoAtendimento() {
-        return tempoAtendimento;
-    }
-
-    public void setTempoAtendimento(TempoAtendimento tempoAtendimento) {
-        this.tempoAtendimento = tempoAtendimento;
-    }
-
-    public Chegada getChegada() {
-        return chegada;
-    }
-
-    public void setChegada(Chegada chegada) {
-        this.chegada = chegada;
     }
 
 }

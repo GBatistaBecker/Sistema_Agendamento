@@ -1,0 +1,57 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #fff;
+  }
+  
+  .center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+  
+  #logo-click {
+    cursor: pointer;
+    width: 380px; 
+    transition: transform 0.3s;
+  }
+  
+  #logo-click:hover {
+    transform: scale(1.05);
+  }
+  
+  .login-container {
+    text-align: center;
+  }
+  
+  .login-logo {
+    width: 275px; 
+    margin-bottom: 20px;
+  }
+  
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  input {
+    padding: 10px;
+    font-size: 16px;
+    width: 250px;
+  }
+  
+  button {
+    padding: 10px;
+    font-size: 18px;
+    background-color: gray;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+  
+  button:hover {
+    background-color: darkgray;
+  }
+  

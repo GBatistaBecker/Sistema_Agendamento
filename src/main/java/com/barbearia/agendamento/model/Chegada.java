@@ -3,6 +3,8 @@ package com.barbearia.agendamento.model;
 import java.time.LocalTime;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -16,31 +18,39 @@ public class Chegada {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int idChegada;
+    private Integer idChegada;
 
     @OneToOne
-    @JoinColumn(name = "id_agendamento")
+    @JoinColumn(name = "id_agendamento", nullable = false)
     private Agendamento agendamento;
 
     private LocalTime horaChegada;
     private LocalTime horaSaida;
-    private String statusChegada;
 
-    public Chegada(Agendamento agendamento, LocalTime horaChegada, LocalTime horaSaida, String statusChegada) {
+    @Enumerated(EnumType.STRING)
+    private StatusChegada statusChegada;
+
+    public enum StatusChegada {
+        Aguardando, Em_atendimento, Finalizado
+    }
+
+    public Chegada() {
+    }
+
+    public Chegada(Integer idChegada, Agendamento agendamento, LocalTime horaChegada, LocalTime horaSaida,
+            StatusChegada statusChegada) {
+        this.idChegada = idChegada;
         this.agendamento = agendamento;
         this.horaChegada = horaChegada;
         this.horaSaida = horaSaida;
         this.statusChegada = statusChegada;
     }
 
-    public Chegada() {
-    }
-
-    public int getIdChegada() {
+    public Integer getIdChegada() {
         return idChegada;
     }
 
-    public void setIdChegada(int idChegada) {
+    public void setIdChegada(Integer idChegada) {
         this.idChegada = idChegada;
     }
 
@@ -68,12 +78,14 @@ public class Chegada {
         this.horaSaida = horaSaida;
     }
 
-    public String getStatusChegada() {
+    public StatusChegada getStatusChegada() {
         return statusChegada;
     }
 
-    public void setStatusChegada(String statusChegada) {
+    public void setStatusChegada(StatusChegada statusChegada) {
         this.statusChegada = statusChegada;
     }
+
+    
 
 }
