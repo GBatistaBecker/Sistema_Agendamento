@@ -2,7 +2,6 @@ package com.barbearia.agendamento.model;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -26,7 +25,7 @@ public class Agendamento {
     private Cliente cliente;
 
     @ManyToOne
-    @JoinColumn(name = "id_funcionario", nullable = false)
+    @JoinColumn(name = "id_funcionario", nullable = true)
     private Funcionario funcionario;
 
     @ManyToOne
@@ -41,8 +40,6 @@ public class Agendamento {
 
     private String observacaoAgendamento;
     private String formaPagamento;
-
-    // Getters e Setters
 
     public enum StatusAgendamento {
         Agendado, Concluído, Cancelado

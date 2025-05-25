@@ -108,5 +108,4 @@ public class Usuario {
         this.funcionario = funcionario;
     }
 
-
 }

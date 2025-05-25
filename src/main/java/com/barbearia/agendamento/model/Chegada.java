@@ -86,6 +86,4 @@ public class Chegada {
         this.statusChegada = statusChegada;
     }
 
-    
-
 }

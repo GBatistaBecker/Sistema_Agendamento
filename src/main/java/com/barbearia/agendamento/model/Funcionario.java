@@ -11,7 +11,6 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.JoinColumn;
 import java.util.List;
 
-
 @Entity
 @Table(name = "tbl_funcionarios")
 public class Funcionario {
@@ -33,11 +32,7 @@ public class Funcionario {
     private String telefoneFuncionario;
 
     @ManyToMany
-    @JoinTable(
-        name = "tbl_funcionario_servico",
-        joinColumns = @JoinColumn(name = "id_funcionario"),
-        inverseJoinColumns = @JoinColumn(name = "id_corte")
-    )
+    @JoinTable(name = "tbl_funcionario_servico", joinColumns = @JoinColumn(name = "id_funcionario"), inverseJoinColumns = @JoinColumn(name = "id_corte"))
     private List<Servico> servicos;
 
     public Funcionario() {
@@ -100,7 +95,5 @@ public class Funcionario {
     public void setServicos(List<Servico> servicos) {
         this.servicos = servicos;
     }
-
-    
 
 }

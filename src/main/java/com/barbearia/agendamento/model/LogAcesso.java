@@ -2,7 +2,6 @@ package com.barbearia.agendamento.model;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -99,7 +98,5 @@ public class LogAcesso {
     public void setIpAcesso(String ipAcesso) {
         this.ipAcesso = ipAcesso;
     }
-
-    
 
 }

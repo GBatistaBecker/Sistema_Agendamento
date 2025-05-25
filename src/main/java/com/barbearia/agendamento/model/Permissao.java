@@ -49,6 +49,4 @@ public class Permissao {
         this.tipoPermissao = tipoPermissao;
     }
 
-    
-
 }
