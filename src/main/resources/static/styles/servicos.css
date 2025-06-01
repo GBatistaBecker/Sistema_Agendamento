@@ -15,7 +15,7 @@ header img.logo {
 }
 
 h1 {
-  font-family: 'Frijole', cursive;
+  font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
   font-size: 2rem;
   margin: 10px 0;
 }
@@ -35,7 +35,7 @@ h1 {
   position: absolute;
   top: 10px;
   right: 10px;
-  background-color: #f0f0f0;
+  background-color: #ccc;
   border: none;
   border-radius: 5px;
   font-size: 18px;

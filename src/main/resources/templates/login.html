@@ -14,6 +14,8 @@
       <input type="tel" id="telefoneCliente" name="telefoneCliente" placeholder="Telefone" maxlength="15" required />
       <button type="submit">Entrar</button>
     </form>
+    <input type="hidden" id="erroTelefone" th:if="${erroTelefone}" th:value="${erroTelefone}" />
+    <input type="hidden" id="erroTelefoneExistente" th:if="${erroTelefoneExistente}" th:value="${erroTelefoneExistente}" />
   </div>
   <script src="/script/loginScript.js"></script>
 </body>

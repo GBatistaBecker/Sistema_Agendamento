@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.ui.Model;
 import com.barbearia.agendamento.model.Agendamento;
 import com.barbearia.agendamento.model.Cliente;
@@ -45,22 +46,44 @@ public class BarbeariaController {
     }
 
     @PostMapping("/barbearia/login")
-    public String processarLogin(@RequestParam String nomeCliente, @RequestParam String telefoneCliente,
-            HttpSession session) {
-        Optional<Cliente> usuarioOpt = clienteRepository.findByNomeClienteAndTelefoneCliente(nomeCliente,
-                telefoneCliente);
+    public String processarLogin(@RequestParam String nomeCliente,
+            @RequestParam String telefoneCliente,
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
 
-        Cliente cliente;
-        if (usuarioOpt.isPresent()) {
-            cliente = usuarioOpt.get();
-        } else {
-            cliente = new Cliente();
-            cliente.setNomeCliente(nomeCliente);
-            cliente.setTelefoneCliente(telefoneCliente);
-            cliente = clienteRepository.save(cliente);
+        // Remove caracteres não numéricos do telefone
+        String telefoneLimpo = telefoneCliente.replaceAll("\\D", "");
+
+        // Verifica se o telefone tem 10 ou 11 dígitos
+        if (telefoneLimpo.length() < 10 || telefoneLimpo.length() > 11) {
+            redirectAttributes.addFlashAttribute("erroTelefone",
+                    "Telefone inserido incorretamente. Informe um número válido com DDD.");
+            return "redirect:/barbearia/login";
         }
 
-        // Armazena o cliente logado na sessão
+        // Verifica se já existe outro cliente com esse telefone
+        Optional<Cliente> clienteComTelefone = clienteRepository.findByTelefoneCliente(telefoneCliente);
+
+        if (clienteComTelefone.isPresent()) {
+            Cliente clienteExistente = clienteComTelefone.get();
+            // Se o telefone está associado a outro nome diferente do que o usuário digitou,
+            // bloqueia
+            if (!clienteExistente.getNomeCliente().equalsIgnoreCase(nomeCliente)) {
+                redirectAttributes.addFlashAttribute("erroTelefoneExistente",
+                        "Telefone já cadastrado com outro nome.");
+                return "redirect:/barbearia/login";
+            }
+            // Se nome e telefone batem, login normal
+            session.setAttribute("clienteLogado", clienteExistente);
+            return "redirect:/barbearia/servicos";
+        }
+
+        // Se não existe cliente com esse telefone, cria novo
+        Cliente cliente = new Cliente();
+        cliente.setNomeCliente(nomeCliente);
+        cliente.setTelefoneCliente(telefoneCliente);
+        cliente = clienteRepository.save(cliente);
+
         session.setAttribute("clienteLogado", cliente);
 
         return "redirect:/barbearia/servicos";
@@ -157,5 +180,12 @@ public class BarbeariaController {
 
         agendamentoRepository.delete(agendamento);
         return ResponseEntity.ok("Agendamento excluído com sucesso.");
+    }
+
+    @GetMapping("/barbearia/admin")
+    public String mostraAdmin(Model model) {
+        List<Agendamento> agendamentos = agendamentoRepository.findAll();
+        model.addAttribute("agendamentos", agendamentos);
+        return "admin";
     }
 }

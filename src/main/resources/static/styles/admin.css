@@ -1,0 +1,73 @@
+body {
+  background-color: white;
+  font-family: 'Arial', sans-serif;
+}
+
+.logo {
+  height: 100px;
+}
+
+.agenda-card {
+  background-color: whitesmoke;
+  border-radius: 10px;
+  padding: 20px;
+  margin-top: 30px;
+}
+
+.agenda-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #ccc;
+  padding: 10px 0;
+}
+
+.agenda-item.cancelado {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 10px;
+}
+
+.agenda-item.confirmado {
+  background-color: #d4edda;
+  color: #155724;
+  padding: 10px;
+}
+
+.horario {
+  font-weight: bold;
+  width: 80px;
+}
+
+.info {
+  flex: 1;
+  margin-left: 15px;
+}
+
+.acoes button {
+  margin-left: 5px;
+}
+
+.acoes .btn-success {
+  width: 40px;
+}
+
+.acoes .btn-danger {
+  width: 40px;
+}
+
+.horario-almoco {
+  background-color: #ccc;
+  font-weight: bold;
+}
+
+.disponivel {
+  color: #999;
+  font-style: italic;
+}
+
+h2 {
+  text-align: center;
+  font-family: 'Courier New', Courier, monospace;
+  font-weight: bold;
+}

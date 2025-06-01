@@ -10,4 +10,6 @@ import com.barbearia.agendamento.model.Cliente;
 @Repository
 public interface ClienteRepository extends JpaRepository<Cliente, Integer> {
     Optional<Cliente> findByNomeClienteAndTelefoneCliente(String nomeCliente, String telefoneCliente);
+
+    Optional<Cliente> findByTelefoneCliente(String telefoneCliente);
 }
