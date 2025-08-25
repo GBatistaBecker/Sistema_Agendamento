@@ -1,75 +1,64 @@
 document.addEventListener("DOMContentLoaded", function () {
   const telefoneInput = document.getElementById("telefoneCliente");
+  const nomeInput = document.getElementById("nomeCliente");
   const form = document.getElementById("login-form");
 
-  // Máscara para telefone (XX) XXXXX-XXXX
+  let backspacePressionado = false;
+
+  telefoneInput.addEventListener("keydown", function (e) {
+    backspacePressionado = e.key === "Backspace";
+  });
+
   telefoneInput.addEventListener("input", function (e) {
-    let valor = e.target.value.replace(/\D/g, "");
+    let valor = telefoneInput.value.replace(/\D/g, "");
+    let pos = telefoneInput.selectionStart;
 
     if (valor.length > 11) valor = valor.substring(0, 11);
 
-    if (valor.length > 6) {
-      valor = `(${valor.substring(0, 2)}) ${valor.substring(2, 7)}-${valor.substring(7)}`;
-    } else if (valor.length > 2) {
-      valor = `(${valor.substring(0, 2)}) ${valor.substring(2)}`;
-    } else if (valor.length > 0) {
-      valor = `(${valor}`;
+    // Aplicar a máscara apenas se o usuário não estiver deletando um formatador
+    if (!backspacePressionado || valor.length === 11) {
+      let formatado = valor;
+      if (valor.length > 6) {
+        formatado = `(${valor.substring(0, 2)}) ${valor.substring(2, 7)}-${valor.substring(7)}`;
+      } else if (valor.length > 2) {
+        formatado = `(${valor.substring(0, 2)}) ${valor.substring(2)}`;
+      } else if (valor.length > 0) {
+        formatado = `(${valor}`;
+      }
+
+      telefoneInput.value = formatado;
+      telefoneInput.setSelectionRange(formatado.length, formatado.length);
     }
 
-    e.target.value = valor;
+    backspacePressionado = false;
   });
 
-  // Validação do telefone no envio do formulário
-form.addEventListener("submit", function (e) {
-  const telefone = telefoneInput.value.replace(/\D/g, ""); // Remove tudo que não é número
-
-  if (telefone.length !== 11) {
-    alert("Telefone inserido incorretamente. Informe um número válido com DDD.");
-    e.preventDefault(); // Impede o envio do formulário
-  }
+  // Máscara para nome
+  nomeInput.addEventListener("input", function (e) {
+    e.target.value = e.target.value.replace(/[^a-zA-Z\s]/g, "");
   });
 
-  document.addEventListener("DOMContentLoaded", function () {
-  const telefoneInput = document.getElementById("telefoneCliente");
-  const form = document.getElementById("login-form");
-
-  // Máscara para telefone (XX) XXXXX-XXXX
-  telefoneInput.addEventListener("input", function (e) {
-    let valor = e.target.value.replace(/\D/g, "");
-
-    if (valor.length > 11) valor = valor.substring(0, 11);
-
-    if (valor.length > 6) {
-      valor = `(${valor.substring(0, 2)}) ${valor.substring(2, 7)}-${valor.substring(7)}`;
-    } else if (valor.length > 2) {
-      valor = `(${valor.substring(0, 2)}) ${valor.substring(2)}`;
-    } else if (valor.length > 0) {
-      valor = `(${valor}`;
-    }
-
-    e.target.value = valor;
-  });
-
-  // Validação do telefone no envio do formulário
+  // Validação no envio do formulário
   form.addEventListener("submit", function (e) {
     const telefone = telefoneInput.value.replace(/\D/g, "");
+    const nome = nomeInput.value.trim();
+    const regexNome = /^[a-zA-Z\s]+$/;
 
     if (telefone.length !== 11) {
       alert("Telefone inserido incorretamente. Informe um número válido com DDD.");
-      e.preventDefault(); // Impede o envio do formulário
+      e.preventDefault();
+    }
+
+    if (!regexNome.test(nome) || nome === "") {
+      alert("Nome inválido. Informe apenas letras e espaços.");
+      e.preventDefault();
     }
   });
 
-  // Alertas de erro repassados pelo backend (via Thymeleaf no HTML)
+  // Alertas do backend
   const erroTelefone = document.getElementById("erroTelefone");
   const erroTelefoneExistente = document.getElementById("erroTelefoneExistente");
 
-  if (erroTelefone) {
-    alert(erroTelefone.value);
-  }
-
-  if (erroTelefoneExistente) {
-    alert(erroTelefoneExistente.value);
-  }
-});
+  if (erroTelefone) alert(erroTelefone.value);
+  if (erroTelefoneExistente) alert(erroTelefoneExistente.value);
 });

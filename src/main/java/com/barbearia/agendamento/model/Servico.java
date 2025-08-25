@@ -23,12 +23,12 @@ public class Servico {
     private BigDecimal valorCorte;
 
     @Column(nullable = false, length = 20)
-    private String duracaoCorte;
+    private Long duracaoCorte;
 
     public Servico() {
     }
 
-    public Servico(Integer idCorte, String nomeCorte, BigDecimal valorCorte, String duracaoCorte) {
+    public Servico(Integer idCorte, String nomeCorte, BigDecimal valorCorte, Long duracaoCorte) {
         this.idCorte = idCorte;
         this.nomeCorte = nomeCorte;
         this.valorCorte = valorCorte;
@@ -59,11 +59,11 @@ public class Servico {
         this.valorCorte = valorCorte;
     }
 
-    public String getDuracaoCorte() {
+    public Long getDuracaoCorte() {
         return duracaoCorte;
     }
 
-    public void setDuracaoCorte(String duracaoCorte) {
+    public void setDuracaoCorte(Long duracaoCorte) {
         this.duracaoCorte = duracaoCorte;
     }
 

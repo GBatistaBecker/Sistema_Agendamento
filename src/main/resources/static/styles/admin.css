@@ -1,17 +1,19 @@
 body {
-  background-color: white;
-  font-family: 'Arial', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(to bottom, #ffffff, #B0ACAC);
 }
 
 .logo {
-  height: 100px;
+  height: 200px;
 }
 
 .agenda-card {
   background-color: whitesmoke;
   border-radius: 10px;
-  padding: 20px;
-  margin-top: 30px;
+  padding: 30px 20px 20px 20px; 
+  margin-top: 0; 
 }
 
 .agenda-item {
@@ -46,6 +48,8 @@ body {
 
 .acoes button {
   margin-left: 5px;
+  color: white;
+  font-size: 18px;
 }
 
 .acoes .btn-success {
@@ -70,4 +74,8 @@ h2 {
   text-align: center;
   font-family: 'Courier New', Courier, monospace;
   font-weight: bold;
+}
+
+.linha-topo {
+  margin: 0 0 10px 0;
 }

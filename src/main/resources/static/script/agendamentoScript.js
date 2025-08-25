@@ -24,12 +24,13 @@ for (let i = 0; i < 7; i++) {
     diaDiv.classList.add('indisponivel');
   }
 
-  diaDiv.innerHTML = `
-    ${dia}/${mes}
-    <span>${textoHorario}</span>
-    ${diaSemana}
-    <button ${horarios === 0 ? 'disabled' : ''} onclick="selecionarDia('${data}', '${diaSemana}')">${horarios === 0 ? 'X' : '+'}</button>
-  `;
+ diaDiv.innerHTML = `
+  <div class="data">${dia}/${mes}</div>
+  <div class="dia-semana">${diaSemana}</div>
+  <button ${horarios === 0 ? 'disabled' : ''} onclick="selecionarDia('${data}', '${diaSemana}')">
+    ${horarios === 0 ? 'X' : '+'}
+  </button>
+`;
 
   container.appendChild(diaDiv);
 }

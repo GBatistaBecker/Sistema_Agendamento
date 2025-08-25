@@ -15,4 +15,5 @@ public interface AgendamentoRepository extends JpaRepository<Agendamento, Intege
     boolean existsByDataAgendamentoAndHoraAgendamento(LocalDate dataAgendamento, LocalTime horaAgendamento);
 
     List<Agendamento> findByCliente(Cliente cliente);
+
 }

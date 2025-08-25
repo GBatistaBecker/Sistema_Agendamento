@@ -1,4 +1,41 @@
-// Abre a sidebar e busca os agendamentos
+// Variável global para armazenar o ID do agendamento a ser excluído
+let idParaExcluir = null;
+
+// Modal de confirmação e botão OK
+const modal = new bootstrap.Modal(document.getElementById('modalConfirmarExclusao'));
+const confirmarBtn = document.getElementById('btnConfirmarExclusao');
+
+// Função chamada pelo botão "🗑️" do HTML injetado
+function confirmarExclusao(id) {
+  idParaExcluir = id;
+  modal.show();
+}
+
+// Evento de clique para confirmar a exclusão
+confirmarBtn.addEventListener('click', async () => {
+  if (idParaExcluir === null) return;
+
+  try {
+    const res = await fetch('/barbearia/excluir-agendamento?idAgendamento=' + idParaExcluir, {
+      method: 'POST'
+    });
+
+    if (!res.ok) throw new Error('Erro ao excluir agendamento');
+
+    // Remove o <li> da interface
+    const itemRemover = document.querySelector(`li[data-id="${idParaExcluir}"]`);
+    if (itemRemover) itemRemover.remove();
+
+  } catch (e) {
+    alert('Falha ao excluir agendamento.');
+    console.error(e);
+  } finally {
+    idParaExcluir = null;
+    modal.hide();
+  }
+});
+
+// Abre a sidebar e carrega os agendamentos HTML do back-end
 document.querySelector('.menu-btn').addEventListener('click', async () => {
   const sidebar = document.getElementById('sidebar');
   sidebar.classList.add('open');
@@ -8,7 +45,7 @@ document.querySelector('.menu-btn').addEventListener('click', async () => {
 
   try {
     const res = await fetch('/barbearia/agendamentos-do-usuario', {
-      credentials: 'include' // Garante que o cookie de sessão seja enviado
+      credentials: 'include'
     });
 
     if (res.status === 401) {
@@ -19,49 +56,14 @@ document.querySelector('.menu-btn').addEventListener('click', async () => {
 
     if (!res.ok) throw new Error('Erro ao buscar agendamentos');
 
-    const agendamentos = await res.json();
+    const html = await res.text();
 
-    if (agendamentos.length === 0) {
+    if (!html || html.trim() === '') {
       lista.innerHTML = '<li>Nenhum agendamento encontrado.</li>';
-      return;
+    } else {
+      lista.innerHTML = html;
     }
 
-    lista.innerHTML = '';
-   agendamentos.forEach(a => {
-  const item = document.createElement('li');
-
-  // Formata a data sem usar Date (evita problemas de fuso)
-  const [ano, mes, dia] = a.dataAgendamento.split('-');
-  const dataFormatada = `${dia}/${mes}/${ano}`;
-
-  const horaFormatada = a.horaAgendamento;
-
-  item.textContent = `${dataFormatada} às ${horaFormatada} - ${a.servico.nomeCorte}`;
-
-  // Botão de exclusão
-  const btnExcluir = document.createElement('button');
-  btnExcluir.textContent = '🗑️';
-  btnExcluir.classList.add('btn-excluir');
-  btnExcluir.addEventListener('click', async () => {
-    if (confirm("Deseja realmente excluir este agendamento?")) {
-      try {
-        const res = await fetch('/barbearia/excluir-agendamento?idAgendamento=' + a.idAgendamento, {
-          method: 'POST'
-        });
-
-        if (!res.ok) throw new Error('Erro ao excluir agendamento');
-
-        item.remove();
-      } catch (e) {
-        alert('Falha ao excluir agendamento.');
-        console.error(e);
-      }
-    }
-  });
-
-  item.appendChild(btnExcluir);
-  lista.appendChild(item);
-});
   } catch (e) {
     lista.innerHTML = '<li>Erro ao carregar agendamentos.</li>';
     console.error(e);
@@ -73,7 +75,7 @@ document.getElementById('closeSidebar').addEventListener('click', () => {
   document.getElementById('sidebar').classList.remove('open');
 });
 
-// Redireciona ao clicar no botão "+"
+// Botões "+" para selecionar serviço e redirecionar
 document.querySelectorAll('.add-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     const idServico = btn.getAttribute('data-id-servico');

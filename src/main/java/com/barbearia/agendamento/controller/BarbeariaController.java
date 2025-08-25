@@ -4,30 +4,33 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
 import com.barbearia.agendamento.model.Agendamento;
 import com.barbearia.agendamento.model.Cliente;
+import com.barbearia.agendamento.model.Funcionario;
 import com.barbearia.agendamento.model.Servico;
-import com.barbearia.agendamento.repository.AgendamentoRepository;
-import com.barbearia.agendamento.repository.ClienteRepository;
-import com.barbearia.agendamento.repository.ServicoRepository;
+import com.barbearia.agendamento.repository.*;
+import com.barbearia.agendamento.util.ListaOrdenadaAgendamento;
 
 import jakarta.servlet.http.HttpSession;
 
 @Controller
+@RequestMapping("/barbearia")
 public class BarbeariaController {
 
     @Autowired
     ClienteRepository clienteRepository;
+
+    @Autowired
+    FuncionarioRepository funcionarioRepository;
 
     @Autowired
     ServicoRepository servicoRepository;
@@ -35,99 +38,84 @@ public class BarbeariaController {
     @Autowired
     AgendamentoRepository agendamentoRepository;
 
-    @GetMapping("/barbearia/index")
+    // Páginas principais
+    @GetMapping("/index")
     public String mostrarIndex() {
         return "index";
     }
 
-    @GetMapping("/barbearia/login")
+    @GetMapping("/login")
     public String mostrarLogin() {
         return "login";
     }
 
-    @PostMapping("/barbearia/login")
+    @PostMapping("/login")
     public String processarLogin(@RequestParam String nomeCliente,
             @RequestParam String telefoneCliente,
             HttpSession session,
             RedirectAttributes redirectAttributes) {
 
-        // Remove caracteres não numéricos do telefone
         String telefoneLimpo = telefoneCliente.replaceAll("\\D", "");
 
-        // Verifica se o telefone tem 10 ou 11 dígitos
         if (telefoneLimpo.length() < 10 || telefoneLimpo.length() > 11) {
-            redirectAttributes.addFlashAttribute("erroTelefone",
-                    "Telefone inserido incorretamente. Informe um número válido com DDD.");
+            redirectAttributes.addFlashAttribute("erroTelefone", "Telefone inválido. Informe um número com DDD.");
             return "redirect:/barbearia/login";
         }
 
-        // Verifica se já existe outro cliente com esse telefone
         Optional<Cliente> clienteComTelefone = clienteRepository.findByTelefoneCliente(telefoneCliente);
 
         if (clienteComTelefone.isPresent()) {
             Cliente clienteExistente = clienteComTelefone.get();
-            // Se o telefone está associado a outro nome diferente do que o usuário digitou,
-            // bloqueia
             if (!clienteExistente.getNomeCliente().equalsIgnoreCase(nomeCliente)) {
-                redirectAttributes.addFlashAttribute("erroTelefoneExistente",
-                        "Telefone já cadastrado com outro nome.");
+                redirectAttributes.addFlashAttribute("erroTelefoneExistente", "Telefone já usado com outro nome.");
                 return "redirect:/barbearia/login";
             }
-            // Se nome e telefone batem, login normal
             session.setAttribute("clienteLogado", clienteExistente);
             return "redirect:/barbearia/servicos";
         }
 
-        // Se não existe cliente com esse telefone, cria novo
-        Cliente cliente = new Cliente();
-        cliente.setNomeCliente(nomeCliente);
-        cliente.setTelefoneCliente(telefoneCliente);
-        cliente = clienteRepository.save(cliente);
+        Cliente novoCliente = new Cliente();
+        novoCliente.setNomeCliente(nomeCliente);
+        novoCliente.setTelefoneCliente(telefoneCliente);
+        clienteRepository.save(novoCliente);
 
-        session.setAttribute("clienteLogado", cliente);
-
+        session.setAttribute("clienteLogado", novoCliente);
         return "redirect:/barbearia/servicos";
     }
 
-    @GetMapping("/barbearia/servicos")
+    @GetMapping("/servicos")
     public String listarServicos(Model model) {
-        List<Servico> servicos = servicoRepository.findAll();
-        model.addAttribute("servicos", servicos);
-        return "servicos"; // servicos.html
+        model.addAttribute("servicos", servicoRepository.findAll());
+        return "servicos";
     }
 
-    @GetMapping("/barbearia/agendamentos")
-    public String exibirAgendamento(@RequestParam(required = false) Integer servicoId, Model model) {
-        List<Servico> servicos = servicoRepository.findAll();
-        model.addAttribute("servicos", servicos);
+    @GetMapping("/agendamentos")
+    public String exibirAgendamentos(@RequestParam(required = false) Integer servicoId, Model model) {
+        model.addAttribute("servicos", servicoRepository.findAll());
         model.addAttribute("servicoSelecionadoId", servicoId);
-        return "agendamentos"; // agendamento.html
+        return "agendamentos";
     }
 
-    @GetMapping("/barbearia/horarios")
-    public String mostrarHorarios(Model model) {
-        // aqui você pode carregar informações se precisar
+    @GetMapping("/horarios")
+    public String mostrarHorarios() {
         return "horarios";
     }
 
-    @PostMapping("/barbearia/agendar")
+    @PostMapping("/agendar")
     @ResponseBody
-    public ResponseEntity<String> realizarAgendamento(
-            @RequestParam Integer idServico,
+    public ResponseEntity<String> realizarAgendamento(@RequestParam Integer idServico,
             @RequestParam String dataAgendamento,
             @RequestParam String horaAgendamento,
             HttpSession session) {
 
         Cliente cliente = (Cliente) session.getAttribute("clienteLogado");
+        if (cliente == null)
+            return ResponseEntity.badRequest().body("Cliente não logado.");
 
-        if (cliente == null) {
-            return ResponseEntity.badRequest().body("Cliente não está logado.");
-        }
+        LocalDate data = LocalDate.parse(dataAgendamento);
+        LocalTime hora = LocalTime.parse(horaAgendamento);
 
-        LocalDate dataConvertida = LocalDate.parse(dataAgendamento);
-        LocalTime horaConvertida = LocalTime.parse(horaAgendamento);
-
-        if (agendamentoRepository.existsByDataAgendamentoAndHoraAgendamento(dataConvertida, horaConvertida)) {
+        if (agendamentoRepository.existsByDataAgendamentoAndHoraAgendamento(data, hora)) {
             return ResponseEntity.badRequest().body("Horário já ocupado.");
         }
 
@@ -137,55 +125,110 @@ public class BarbeariaController {
         Agendamento agendamento = new Agendamento();
         agendamento.setCliente(cliente);
         agendamento.setServico(servico);
-        agendamento.setDataAgendamento(dataConvertida);
-        agendamento.setHoraAgendamento(horaConvertida);
+        agendamento.setDataAgendamento(data);
+        agendamento.setHoraAgendamento(hora);
         agendamentoRepository.save(agendamento);
 
         return ResponseEntity.ok("Agendamento realizado com sucesso.");
     }
 
-    @GetMapping("/barbearia/agendamentos-do-usuario")
+    @GetMapping("/agendamentos-do-usuario")
     @ResponseBody
-    public ResponseEntity<List<Agendamento>> listarAgendamentosDoUsuario(HttpSession session) {
-        Cliente cliente = (Cliente) session.getAttribute("clienteLogado");
+    public ResponseEntity<String> listarAgendamentosDoUsuario(
+            HttpSession session,
+            @RequestParam(value = "idServico", required = false) Long idServico) {
 
+        Cliente cliente = (Cliente) session.getAttribute("clienteLogado");
         if (cliente == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
+        ListaOrdenadaAgendamento fila = new ListaOrdenadaAgendamento();
         List<Agendamento> agendamentos = agendamentoRepository.findByCliente(cliente);
-        return ResponseEntity.ok(agendamentos);
+
+        for (Agendamento ag : agendamentos) {
+            if (idServico == null || ag.getServico().getIdCorte().equals(idServico)) {
+                fila.inserirOrdenado(ag);
+            }
+        }
+
+        return ResponseEntity.ok(fila.viewCliente()); // método novo
     }
 
-    @PostMapping("/barbearia/excluir-agendamento")
+    @PostMapping("/excluir-agendamento")
     @ResponseBody
     public ResponseEntity<String> excluirAgendamento(@RequestParam Integer idAgendamento, HttpSession session) {
         Cliente cliente = (Cliente) session.getAttribute("clienteLogado");
-
-        if (cliente == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Cliente não está logado.");
-        }
+        if (cliente == null)
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Cliente não logado.");
 
         Optional<Agendamento> agendamentoOpt = agendamentoRepository.findById(idAgendamento);
-        if (agendamentoOpt.isEmpty()) {
+        if (agendamentoOpt.isEmpty())
             return ResponseEntity.badRequest().body("Agendamento não encontrado.");
-        }
 
         Agendamento agendamento = agendamentoOpt.get();
-
-        // Garante que o agendamento pertence ao cliente logado
         if (!agendamento.getCliente().getIdCliente().equals(cliente.getIdCliente())) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Você não pode excluir este agendamento.");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Não autorizado.");
         }
 
         agendamentoRepository.delete(agendamento);
         return ResponseEntity.ok("Agendamento excluído com sucesso.");
     }
 
-    @GetMapping("/barbearia/admin")
-    public String mostraAdmin(Model model) {
+    @GetMapping("/horarios-ocupados")
+    @ResponseBody
+    public List<String> obterHorariosOcupados(@RequestParam String data,
+            @RequestParam Integer idServico) {
+        LocalDate dataAgendamento = LocalDate.parse(data);
+        List<Agendamento> agendamentos = agendamentoRepository.findByDataAgendamento(dataAgendamento);
+        return agendamentos.stream().map(ag -> ag.getHoraAgendamento().toString()).toList();
+    }
+
+    // === ROTAS DE FUNCIONÁRIO (Admin) ===
+
+    @GetMapping("/loginadm")
+    public String mostrarTelaLoginAdmin() {
+        return "loginAdmin"; // Nome correto do arquivo HTML
+    }
+
+    @PostMapping("/loginadm")
+    public String processarLoginFuncionario(@RequestParam String nomeFuncionario,
+            @RequestParam String telefoneFuncionario,
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
+
+        String telefoneLimpo = telefoneFuncionario.replaceAll("\\D", "");
+        if (telefoneLimpo.length() < 10 || telefoneLimpo.length() > 11) {
+            redirectAttributes.addFlashAttribute("erroTelefone", "Telefone inválido.");
+            return "redirect:/barbearia/loginadm";
+        }
+
+        Optional<Funcionario> funcionarioOpt = funcionarioRepository.findByTelefoneFuncionario(telefoneFuncionario);
+        if (funcionarioOpt.isPresent()) {
+            Funcionario funcionario = funcionarioOpt.get();
+            if (!funcionario.getNomeFuncionario().equalsIgnoreCase(nomeFuncionario)) {
+                redirectAttributes.addFlashAttribute("erroLogin", "Nome não confere com o telefone.");
+                return "redirect:/barbearia/loginadm";
+            }
+
+            session.setAttribute("funcionarioLogado", funcionario);
+            return "redirect:/barbearia/admin";
+        }
+
+        redirectAttributes.addFlashAttribute("erroLogin", "Funcionário não encontrado.");
+        return "redirect:/barbearia/loginadm";
+    }
+
+    @GetMapping("/admin")
+    public String exibirAgendamentosAdmin(Model model) {
         List<Agendamento> agendamentos = agendamentoRepository.findAll();
-        model.addAttribute("agendamentos", agendamentos);
+        ListaOrdenadaAgendamento fila = new ListaOrdenadaAgendamento();
+
+        for (Agendamento a : agendamentos) {
+            fila.inserirOrdenado(a);
+        }
+
+        model.addAttribute("htmlAgendamentos", fila.viewAdmin());
         return "admin";
     }
 }

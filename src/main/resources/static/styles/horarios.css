@@ -1,7 +1,8 @@
 body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background-color: #ffffff;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(to bottom, #ffffff, #B0ACAC);
 }
 
 header {
@@ -65,6 +66,13 @@ header h1 {
   border-radius: 5px;
   cursor: pointer;
 }
+
+.hora button:hover {
+  background-color: #0c9bdd;
+  color: white;
+  transform: scale(1.1);
+}
+
 
 .hora.indisponivel {
   background-color: #aaa;

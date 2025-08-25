@@ -3,17 +3,18 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Login - Pitbull Barber</title>
+  <title>Login - Administração Pitbull Barber</title>
   <link rel="stylesheet" href="/styles/style.css" />
 </head>
 <body class="center">
   <div class="login-container">
     <img src="/imagens/logo-sem-fundo.png" alt="Logo Pitbull Barber" class="login-logo"/>
-    <form id="login-form" method="post" action="/barbearia/login">
-      <input type="text" id="nomeCliente" name="nomeCliente" placeholder="Nome" required />
-      <input type="tel" id="telefoneCliente" name="telefoneCliente" placeholder="Telefone" maxlength="15" required />
-      <button type="submit">Entrar</button>
-    </form>
+    <h2> Login - Administração</h2>
+   <form id="login-form" method="post" action="/barbearia/loginadm">
+    <input type="text" id="nomeCliente" name="nomeFuncionario" placeholder="Nome" required />
+    <input type="tel" id="telefoneCliente" name="telefoneFuncionario" placeholder="Telefone" maxlength="15" required />
+    <button type="submit">Entrar</button>
+</form>
     <input type="hidden" id="erroTelefone" th:if="${erroTelefone}" th:value="${erroTelefone}" />
     <input type="hidden" id="erroTelefoneExistente" th:if="${erroTelefoneExistente}" th:value="${erroTelefoneExistente}" />
   </div>
