@@ -21,13 +21,17 @@ public class Cliente {
     @Column(nullable = false, length = 15, unique = true)
     private String telefoneCliente;
 
+    @Column(nullable = false, length = 80, unique = true)
+    private String emailCliente;
+
     public Cliente() {
     }
 
-    public Cliente(Integer idCliente, String nomeCliente, String telefoneCliente) {
+    public Cliente(Integer idCliente, String nomeCliente, String telefoneCliente, String emailCliente) {
         this.idCliente = idCliente;
         this.nomeCliente = nomeCliente;
         this.telefoneCliente = telefoneCliente;
+        this.emailCliente = emailCliente;
     }
 
     public Integer getIdCliente() {
@@ -52,6 +56,14 @@ public class Cliente {
 
     public void setTelefoneCliente(String telefoneCliente) {
         this.telefoneCliente = telefoneCliente;
+    }
+
+    public void setEmailCliente(String emailCliente) {
+        this.emailCliente = emailCliente;
+    }
+
+    public String getEmailCliente() {
+        return emailCliente;
     }
 
 }

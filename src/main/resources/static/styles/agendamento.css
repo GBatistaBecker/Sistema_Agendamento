@@ -2,7 +2,9 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(to bottom, #ffffff, #B0ACAC);
+  background-image: url('/imagens/pitbull-fundo-sem-cachorro.png');
+  background-size: cover;
+  background-position: center;
 }
 
 header {
@@ -29,6 +31,7 @@ header h1 {
   flex-direction: column;
   align-items: center;
   padding: 10px;
+  opacity: 80%;
 }
 
 .dia {

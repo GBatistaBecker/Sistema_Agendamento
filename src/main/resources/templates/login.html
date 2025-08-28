@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -7,16 +7,33 @@
   <link rel="stylesheet" href="/styles/style.css" />
 </head>
 <body class="center">
+
+  <div id="success-message" style="display:none;"
+       th:if="${sucessoCadastro}"
+       th:text="${sucessoCadastro}">
+  </div>
+  
   <div class="login-container">
-    <img src="/imagens/logo-sem-fundo.png" alt="Logo Pitbull Barber" class="login-logo"/>
+    <img src="/imagens/pitbull-logo-branco.png" alt="Logo Pitbull Barber" class="login-logo"/>
     <form id="login-form" method="post" action="/barbearia/login">
+    
+      <div id="server-error-message" style="display:none;"
+           th:if="${erroTelefone} or ${erroTelefoneExistente} or ${erroNaoEncontrado}"
+           th:text="${erroTelefone ?: erroTelefoneExistente ?: erroNaoEncontrado}">
+      </div>
+
       <input type="text" id="nomeCliente" name="nomeCliente" placeholder="Nome" required />
       <input type="tel" id="telefoneCliente" name="telefoneCliente" placeholder="Telefone" maxlength="15" required />
+      
+      <p class="cadastro-link" style="color: #ccc;">
+        Ainda não tem cadastro? 
+        <a href="/barbearia/cadastro" style="color: #B22222;">Clique aqui</a>
+      </p>
+      
       <button type="submit">Entrar</button>
     </form>
-    <input type="hidden" id="erroTelefone" th:if="${erroTelefone}" th:value="${erroTelefone}" />
-    <input type="hidden" id="erroTelefoneExistente" th:if="${erroTelefoneExistente}" th:value="${erroTelefoneExistente}" />
   </div>
+
   <script src="/script/loginScript.js"></script>
 </body>
 </html>

@@ -39,6 +39,58 @@ public class BarbeariaController {
     AgendamentoRepository agendamentoRepository;
 
     // Páginas principais
+    @GetMapping("/cadastro")
+    public String mostrarCadastro() {
+        return "cadastro";
+    }
+
+    @PostMapping("/cadastro")
+    public String cadastrarCliente(@RequestParam String nomeCliente,
+            @RequestParam String telefoneCliente,
+            @RequestParam String emailCliente,
+            RedirectAttributes redirectAttributes) {
+
+        String telefoneLimpo = telefoneCliente.replaceAll("\\D", "");
+
+        // Validação básica
+        if (telefoneLimpo.length() < 10 || telefoneLimpo.length() > 11) {
+            redirectAttributes.addFlashAttribute("erroTelefone", "Telefone inválido. Informe um número com DDD.");
+            return "redirect:/barbearia/cadastro";
+        }
+
+        if (nomeCliente.trim().isEmpty()) {
+            redirectAttributes.addFlashAttribute("erroNome", "Nome não pode ser vazio.");
+            return "redirect:/barbearia/cadastro";
+        }
+
+        if (!emailCliente.matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")) {
+            redirectAttributes.addFlashAttribute("erroEmail", "E-mail inválido.");
+            return "redirect:/barbearia/cadastro";
+        }
+
+        // Verifica se já existe cliente com mesmo telefone ou email
+        if (clienteRepository.findByTelefoneCliente(telefoneCliente).isPresent()) {
+            redirectAttributes.addFlashAttribute("erroTelefoneExistente", "Telefone já cadastrado!");
+            return "redirect:/barbearia/cadastro";
+        }
+
+        if (clienteRepository.findByEmailCliente(emailCliente).isPresent()) {
+            redirectAttributes.addFlashAttribute("erroEmailExistente", "E-mail já cadastrado!");
+            return "redirect:/barbearia/cadastro";
+        }
+
+        // Cria e salva cliente
+        Cliente novoCliente = new Cliente();
+        novoCliente.setNomeCliente(nomeCliente);
+        novoCliente.setTelefoneCliente(telefoneCliente);
+        novoCliente.setEmailCliente(emailCliente);
+
+        clienteRepository.save(novoCliente);
+
+        redirectAttributes.addFlashAttribute("sucessoCadastro", "Cadastro realizado com sucesso! Faça login.");
+        return "redirect:/barbearia/login";
+    }
+
     @GetMapping("/index")
     public String mostrarIndex() {
         return "index";
@@ -50,37 +102,38 @@ public class BarbeariaController {
     }
 
     @PostMapping("/login")
-    public String processarLogin(@RequestParam String nomeCliente,
+    public String verificarCliente(@RequestParam String nomeCliente,
             @RequestParam String telefoneCliente,
-            HttpSession session,
-            RedirectAttributes redirectAttributes) {
+            RedirectAttributes redirectAttributes,
+            HttpSession session) {
 
         String telefoneLimpo = telefoneCliente.replaceAll("\\D", "");
 
+        // Valida formato do telefone
         if (telefoneLimpo.length() < 10 || telefoneLimpo.length() > 11) {
             redirectAttributes.addFlashAttribute("erroTelefone", "Telefone inválido. Informe um número com DDD.");
             return "redirect:/barbearia/login";
         }
 
+        // Busca cliente por telefone
         Optional<Cliente> clienteComTelefone = clienteRepository.findByTelefoneCliente(telefoneCliente);
 
         if (clienteComTelefone.isPresent()) {
             Cliente clienteExistente = clienteComTelefone.get();
+            // Verifica se o nome bate
             if (!clienteExistente.getNomeCliente().equalsIgnoreCase(nomeCliente)) {
-                redirectAttributes.addFlashAttribute("erroTelefoneExistente", "Telefone já usado com outro nome.");
+                redirectAttributes.addFlashAttribute("erroTelefoneExistente", "Telefone já cadastrado com outro nome.");
                 return "redirect:/barbearia/login";
             }
+
+            // Apenas armazenar para reconhecer sessão
             session.setAttribute("clienteLogado", clienteExistente);
             return "redirect:/barbearia/servicos";
         }
 
-        Cliente novoCliente = new Cliente();
-        novoCliente.setNomeCliente(nomeCliente);
-        novoCliente.setTelefoneCliente(telefoneCliente);
-        clienteRepository.save(novoCliente);
-
-        session.setAttribute("clienteLogado", novoCliente);
-        return "redirect:/barbearia/servicos";
+        // Se não existir, apenas erro (fica no login)
+        redirectAttributes.addFlashAttribute("erroNaoEncontrado", "Cliente não encontrado. Cadastre-se para acessar.");
+        return "redirect:/barbearia/login";
     }
 
     @GetMapping("/servicos")

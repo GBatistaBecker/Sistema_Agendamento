@@ -3,7 +3,7 @@ body {
   min-height: 100vh;
   background: linear-gradient(to bottom, #ffffff, #B0ACAC);
   position: relative;
-  background-image: url('/imagens/background-pitbull.png');
+  background-image: url('/imagens/tela-admin.png');
   background-size: cover;
   background-position: center;
 }
