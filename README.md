@@ -22,7 +22,7 @@ Este projeto é um sistema web de **agendamento de horários em uma barbearia**,
 - **Spring Boot** (MVC, Data JPA)  
 - **Thymeleaf** (renderização das páginas HTML)  
 - **Bootstrap** (ajustes de design responsivo)  
-- **Banco de Dados**: PostgreSQL (pode ser adaptado para MySQL/H2)  
+- **Banco de Dados**: PostgreSQL
 
 ---
 
