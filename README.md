@@ -18,9 +18,8 @@ Este projeto é um sistema web de **agendamento de horários em uma barbearia**,
 
 ## 🛠️ Tecnologias Utilizadas
 
-- **Java 17+**  
+- **Java 24+**  
 - **Spring Boot** (MVC, Data JPA)  
-- **Hibernate**  
 - **Thymeleaf** (renderização das páginas HTML)  
 - **Bootstrap** (ajustes de design responsivo)  
 - **Banco de Dados**: PostgreSQL (pode ser adaptado para MySQL/H2)  
