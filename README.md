@@ -28,7 +28,7 @@ Este projeto é um sistema web para **agendamento de horários em uma barbearia*
 ---
 
 ## 📂 Estrutura do Projeto
-
+```
 src/
 ├── main/
 │ ├── java/br/com/barbearia/agendamento
@@ -41,3 +41,4 @@ src/
 │ ├── static/ → CSS, JS, imagens
 │ ├── templates/ → Páginas HTML (Thymeleaf)
 │ └── application.properties → Configurações do projeto
+```
