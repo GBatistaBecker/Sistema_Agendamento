@@ -1,0 +1,43 @@
+# 💈 Sistema de Agendamento de Barbearia
+
+Este projeto é um sistema web para **agendamento de horários em uma barbearia**, permitindo que clientes escolham serviços, visualizem horários disponíveis e realizem reservas de forma prática.  
+
+---
+
+## 📌 Funcionalidades
+
+- Cadastro de clientes (com autenticação por e-mail e senha).  
+- Login e gerenciamento de sessão.  
+- Listagem de serviços oferecidos pela barbearia.  
+- Agendamento de horários (com verificação de horários ocupados).  
+- Exclusão e consulta de agendamentos.  
+- Painel administrativo para gerenciar clientes e serviços.  
+- Interface amigável e responsiva.  
+
+---
+
+## 🛠️ Tecnologias Utilizadas
+
+- **Java 17+**  
+- **Spring Boot** (MVC, Data JPA)  
+- **Hibernate**  
+- **Thymeleaf** (renderização das páginas HTML)  
+- **Bootstrap** (ajustes de design responsivo)  
+- **Banco de Dados**: PostgreSQL (pode ser adaptado para MySQL/H2)  
+
+---
+
+## 📂 Estrutura do Projeto
+
+src/
+├── main/
+│ ├── java/br/com/barbearia/agendamento
+│ │ ├── controller/ → Lógica de controle (endpoints e rotas)
+│ │ ├── model/ → Entidades JPA
+│ │ ├── repository/ → Interfaces para persistência
+│ │ ├── service/ → Regras de negócio
+│ │ └── util/ → Lista para ordenamento
+│ └── resources/
+│ ├── static/ → CSS, JS, imagens
+│ ├── templates/ → Páginas HTML (Thymeleaf)
+│ └── application.properties → Configurações do projeto
