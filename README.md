@@ -1,6 +1,6 @@
 # 💈 Sistema de Agendamento de Barbearia
 
-Este projeto é um sistema web de **agendamento de horários em uma barbearia**, permitindo que clientes escolham serviços, visualizem horários disponíveis e realizem reservas de forma prática. Desenvolvido para a matéria Projeto Aplicado da faculdade UNISenai de Tuabarão, Santa Catarina.
+Este projeto é um sistema web de **agendamento de horários em uma barbearia**, permitindo que clientes escolham serviços, visualizem horários disponíveis e realizem reservas de forma prática. Desenvolvido para a matéria de **Projeto Aplicado** da faculdade **UNISenai** de Tuabarão, Santa Catarina.
 
 ---
 
