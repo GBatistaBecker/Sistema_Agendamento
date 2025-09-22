@@ -17,7 +17,7 @@ body {
   border-radius: 10px;
   padding: 30px 20px 20px 20px; 
   margin-top: 0; 
-  opacity: 85%;
+  opacity:75%;
 }
 
 .agenda-item {
@@ -82,4 +82,19 @@ h2 {
 
 .linha-topo {
   margin: 0 0 10px 0;
+}
+
+/* Botões da paginação */
+.pagination .pagination-btn {
+  background-color: #212529;   /* preto/cinza escuro, combina com topo */
+  color: #fff !important;
+  border: 1px solid #444;
+  border-radius: 8px;
+  margin: 0 3px;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.pagination .active .pagination-btn {
+  background-color: #999; /* página atual destacada */
+  border-color: #ffffff;
 }

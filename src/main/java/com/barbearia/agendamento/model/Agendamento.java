@@ -18,7 +18,7 @@ public class Agendamento {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer idAgendamento;
+        private Integer idAgendamento;
 
     @ManyToOne
     @JoinColumn(name = "id_cliente", nullable = false)

@@ -2,10 +2,15 @@ package com.barbearia.agendamento.controller;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -273,15 +278,30 @@ public class BarbeariaController {
     }
 
     @GetMapping("/admin")
-    public String exibirAgendamentosAdmin(Model model) {
-        List<Agendamento> agendamentos = agendamentoRepository.findAll();
-        ListaOrdenadaAgendamento fila = new ListaOrdenadaAgendamento();
+    public String exibirAgendamentosAdmin(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            Model model) {
 
-        for (Agendamento a : agendamentos) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("horaAgendamento").ascending());
+        // 👆 troque "id" pelo nome real de algum atributo da sua entidade Agendamento
+
+        Page<Agendamento> agendamentosPage = agendamentoRepository.findAll(pageable);
+
+        ListaOrdenadaAgendamento fila = new ListaOrdenadaAgendamento();
+        for (Agendamento a : agendamentosPage.getContent()) {
             fila.inserirOrdenado(a);
         }
 
         model.addAttribute("htmlAgendamentos", fila.viewAdmin());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", agendamentosPage.getTotalPages());
+        model.addAttribute("size", size);
+
+
         return "admin";
     }
+
+
+
 }
