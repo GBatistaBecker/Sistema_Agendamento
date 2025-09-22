@@ -284,7 +284,6 @@ public class BarbeariaController {
             Model model) {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by("horaAgendamento").ascending());
-        // 👆 troque "id" pelo nome real de algum atributo da sua entidade Agendamento
 
         Page<Agendamento> agendamentosPage = agendamentoRepository.findAll(pageable);
 
