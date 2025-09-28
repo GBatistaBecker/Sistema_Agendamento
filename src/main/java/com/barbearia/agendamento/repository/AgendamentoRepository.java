@@ -19,4 +19,7 @@ public interface AgendamentoRepository extends JpaRepository<Agendamento, Intege
 
     List<Agendamento> findByCliente(Cliente cliente);
 
+    int deleteByDataAgendamentoBefore(LocalDate limite);
+
+
 }
