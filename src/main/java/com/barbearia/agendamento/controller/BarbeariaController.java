@@ -315,6 +315,36 @@ public class BarbeariaController {
             @ApiResponse(responseCode = "200", description = "Agendamento confirmado"),
             @ApiResponse(responseCode = "404", description = "Agendamento não encontrado")
     })
+
+    @GetMapping("/admin")
+    public String exibirAgendamentosAdmin(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            Model model) {
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("horaAgendamento").ascending());
+        LocalDate hoje = LocalDate.now();
+
+        Page<Agendamento> agendamentosPage = agendamentoRepository.findByDataAgendamento(hoje, pageable);
+
+        ListaOrdenadaAgendamento fila = new ListaOrdenadaAgendamento();
+        for (Agendamento a : agendamentosPage.getContent()) {
+            fila.inserirOrdenado(a);
+        }
+
+        // Verifica se há agendamentos
+        boolean semAgendamentos = agendamentosPage.isEmpty();
+
+        model.addAttribute("htmlAgendamentos", fila.viewAdmin());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", agendamentosPage.getTotalPages());
+        model.addAttribute("size", size);
+        model.addAttribute("semAgendamentos", semAgendamentos);
+        model.addAttribute("dataHoje", hoje);
+
+        return "admin";
+    }
+
     @PostMapping("/admin/{id}/confirmar")
     public ResponseEntity<String> confirmarAgendamento(
             @Parameter(description = "ID do agendamento", example = "3") @PathVariable Integer id) {
@@ -431,10 +461,14 @@ public class BarbeariaController {
         }
 
         model.addAttribute("pagina", pagina);
+        model.addAttribute("agendamentos", pagina.getContent());
         model.addAttribute("ordenar", ordenar);
         model.addAttribute("status", status);
         model.addAttribute("nome", nome);
+        model.addAttribute("paginaAtual", page);
+        model.addAttribute("totalPaginas", pagina.getTotalPages());
 
         return "relatorio";
+
     }
 }
