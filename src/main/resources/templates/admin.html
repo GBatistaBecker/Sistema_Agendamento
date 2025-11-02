@@ -16,12 +16,28 @@
     <div style="width: 100px;"></div>
   </div>
 
-  <div class="agenda-card" th:utext="${htmlAgendamentos}">
-    <!-- Conteúdo HTML dos agendamentos será injetado aqui pelo Thymeleaf -->
+  <div class="text-end mt-3 mb-3">
+    <a href="/barbearia/relatorio" class="btn btn-light">
+      <i class="bi bi-file-earmark-text"></i> Ver página de Relatórios
+    </a>
   </div>
-</div>
 
-<nav aria-label="Page navigation">
+
+  <!-- Mensagem caso não haja agendamentos -->
+  <div th:if="${#strings.isEmpty(htmlAgendamentos)}" class="alert alert-secondary text-center mt-4">
+    <i class="bi bi-calendar-x"></i> Não há agendamentos marcados para hoje.
+  </div>
+
+  <!-- Lista de agendamentos -->
+   <div class="agenda-card">
+      <div class="agendamenda-item" 
+          th:unless="${#strings.isEmpty(htmlAgendamentos)}"
+          th:utext="${htmlAgendamentos}">
+      </div>
+  </div>
+
+<!-- Paginação -->
+<nav aria-label="Page navigation" th:if="${totalPages > 0}">
   <ul class="pagination justify-content-center mt-3">
 
     <!-- Botão Anterior -->
@@ -51,6 +67,7 @@
 
   </ul>
 </nav>
+
 
 
 

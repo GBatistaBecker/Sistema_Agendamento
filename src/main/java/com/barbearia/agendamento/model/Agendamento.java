@@ -2,6 +2,8 @@ package com.barbearia.agendamento.model;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -18,7 +20,7 @@ public class Agendamento {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-        private Integer idAgendamento;
+    private Integer idAgendamento;
 
     @ManyToOne
     @JoinColumn(name = "id_cliente", nullable = false)
@@ -36,7 +38,8 @@ public class Agendamento {
     private LocalTime horaAgendamento;
 
     @Enumerated(EnumType.STRING)
-    private StatusAgendamento statusAgendamento;
+    @Column(nullable = false)
+    private StatusAgendamento statusAgendamento = StatusAgendamento.Agendado;
 
     private String observacaoAgendamento;
     private String formaPagamento;

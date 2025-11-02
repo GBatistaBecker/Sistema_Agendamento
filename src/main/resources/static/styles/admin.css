@@ -46,7 +46,7 @@ body {
 }
 
 .info {
-  flex: 1;
+  flex: 1;  
   margin-left: 15px;
 }
 
@@ -54,6 +54,15 @@ body {
   margin-left: 5px;
   color: white;
   font-size: 18px;
+}
+
+.titulo {
+  color: white;
+}
+
+/* Deixe branco apenas os textos normais */
+.agendamento-container {
+  color: white;
 }
 
 .acoes .btn-success {
@@ -98,3 +107,4 @@ h2 {
   background-color: #999; /* página atual destacada */
   border-color: #ffffff;
 }
+

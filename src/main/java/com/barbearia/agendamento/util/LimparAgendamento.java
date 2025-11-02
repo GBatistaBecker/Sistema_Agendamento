@@ -16,14 +16,14 @@ public class LimparAgendamento {
     @Autowired
     private AgendamentoRepository agendamentoRepository;
 
-    // Executa todo dia 1 à meia noite
-    // para deletar o histórica dos agendamentos
-    // mais antigos que 30 dias
+    // Executa todo dia 1 à meia-noite
+    // para deletar o histórico dos agendamentos
+    // mais antigos que 1 ano
     @Scheduled(cron = "0 0 0 1 * ?")
     @Transactional
     public void limparAgendamentosAntigos() {
-        LocalDate limite = LocalDate.now().minusDays(30);
-        int removidos = agendamentoRepository.deleteByDataAgendamentoBefore(limite);
+        LocalDate limite = LocalDate.now().minusYears(1);
+        agendamentoRepository.deleteByDataAgendamentoBefore(limite);
     }
-
 }
+

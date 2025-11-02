@@ -3,11 +3,15 @@ package com.barbearia.agendamento.controller;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -284,23 +288,153 @@ public class BarbeariaController {
             Model model) {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by("horaAgendamento").ascending());
+        LocalDate hoje = LocalDate.now();
 
-        Page<Agendamento> agendamentosPage = agendamentoRepository.findAll(pageable);
+        Page<Agendamento> agendamentosPage = agendamentoRepository.findByDataAgendamento(hoje, pageable);
 
         ListaOrdenadaAgendamento fila = new ListaOrdenadaAgendamento();
         for (Agendamento a : agendamentosPage.getContent()) {
             fila.inserirOrdenado(a);
         }
 
+        // Verifica se há agendamentos
+        boolean semAgendamentos = agendamentosPage.isEmpty();
+
         model.addAttribute("htmlAgendamentos", fila.viewAdmin());
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", agendamentosPage.getTotalPages());
         model.addAttribute("size", size);
-
+        model.addAttribute("semAgendamentos", semAgendamentos);
+        model.addAttribute("dataHoje", hoje);
 
         return "admin";
     }
 
+    @PostMapping("/admin/{id}/confirmar")
+    public ResponseEntity<String> confirmarAgendamento(@PathVariable Integer id) {
+        Optional<Agendamento> opt = agendamentoRepository.findById(id);
+        if (opt.isPresent()) {
+            Agendamento agendamento = opt.get();
+            agendamento.setStatusAgendamento(Agendamento.StatusAgendamento.Concluído);
+            agendamentoRepository.save(agendamento);
+            return ResponseEntity.ok("Agendamento confirmado com sucesso");
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Agendamento não encontrado");
+    }
 
+    @PostMapping("/admin/{id}/cancelar")
+    public ResponseEntity<String> cancelarAgendamento(@PathVariable Integer id) {
+        Optional<Agendamento> opt = agendamentoRepository.findById(id);
+        if (opt.isPresent()) {
+            Agendamento agendamento = opt.get();
+            agendamento.setStatusAgendamento(Agendamento.StatusAgendamento.Cancelado);
+            agendamentoRepository.save(agendamento);
+            return ResponseEntity.ok("Agendamento cancelado com sucesso");
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Agendamento não encontrado");
+    }
+
+    @GetMapping("/relatorio")
+    public String relatorio(
+            @RequestParam(required = false) String ordenar,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String nome,
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "10") int size,
+            Model model) {
+
+        if (page == null)
+            page = 0;
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Agendamento> pagina;
+
+        // ✅ Caso o usuário queira ordenar pelos cortes mais feitos
+        if ("corte".equalsIgnoreCase(ordenar)) {
+            // busca o ranking dos serviços mais populares
+            List<Object[]> ranking = agendamentoRepository.findServicosMaisFeitos();
+            List<String> ordemServicos = ranking.stream()
+                    .map(obj -> (String) obj[0])
+                    .toList();
+
+            // busca todos os agendamentos
+            List<Agendamento> todos = agendamentoRepository.findAll();
+
+            // aplica os filtros antes de ordenar
+            if (status != null && !status.isEmpty()) {
+                todos = todos.stream()
+                        .filter(a -> a.getStatusAgendamento().name().equalsIgnoreCase(status))
+                        .toList();
+            }
+
+            if (nome != null && !nome.isEmpty()) {
+                todos = todos.stream()
+                        .filter(a -> a.getCliente().getNomeCliente().toLowerCase().contains(nome.toLowerCase()))
+                        .toList();
+            }
+
+            // ordena conforme a frequência do corte
+            List<Agendamento> ordenados = todos.stream()
+                    .sorted((a, b) -> {
+                        int idxA = ordemServicos.indexOf(a.getServico().getNomeCorte());
+                        int idxB = ordemServicos.indexOf(b.getServico().getNomeCorte());
+                        // se algum serviço não estiver no ranking (sem ocorrências)
+                        if (idxA == -1)
+                            idxA = ordemServicos.size();
+                        if (idxB == -1)
+                            idxB = ordemServicos.size();
+                        // mantém a ordem por data dentro do mesmo corte
+                        int cmp = Integer.compare(idxA, idxB);
+                        if (cmp == 0) {
+                            cmp = a.getDataAgendamento().compareTo(b.getDataAgendamento());
+                            if (cmp == 0) {
+                                cmp = a.getHoraAgendamento().compareTo(b.getHoraAgendamento());
+                            }
+                        }
+                        return cmp;
+                    })
+                    .toList();
+
+            // pagina manualmente (após ordenar)
+            int start = Math.min(page * size, ordenados.size());
+            int end = Math.min(start + size, ordenados.size());
+            List<Agendamento> pageContent = ordenados.subList(start, end);
+
+            pagina = new PageImpl<>(pageContent, pageable, ordenados.size());
+        } else {
+            // ✅ Ordenação padrão por data e hora
+            Sort sort = Sort.by("dataAgendamento").ascending().and(Sort.by("horaAgendamento"));
+            pagina = agendamentoRepository.findAll(PageRequest.of(page, size, sort));
+
+            if (status != null && !status.isEmpty()) {
+                pagina = new PageImpl<>(
+                        pagina.getContent().stream()
+                                .filter(a -> a.getStatusAgendamento().name().equalsIgnoreCase(status))
+                                .toList(),
+                        pageable,
+                        pagina.getTotalElements());
+            }
+
+            if (nome != null && !nome.isEmpty()) {
+                pagina = new PageImpl<>(
+                        pagina.getContent().stream()
+                                .filter(a -> a.getCliente().getNomeCliente().toLowerCase().contains(nome.toLowerCase()))
+                                .toList(),
+                        pageable,
+                        pagina.getTotalElements());
+            }
+        }
+
+        // envia os dados pra view
+        model.addAttribute("agendamentos", pagina.getContent());
+        model.addAttribute("paginaAtual", page);
+        model.addAttribute("totalPaginas", pagina.getTotalPages());
+        model.addAttribute("totalElementos", pagina.getTotalElements());
+        model.addAttribute("ordenar", ordenar);
+        model.addAttribute("status", status);
+        model.addAttribute("nome", nome);
+
+        return "relatorio";
+    }
 
 }

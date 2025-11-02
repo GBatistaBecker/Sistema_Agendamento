@@ -73,32 +73,61 @@ public class ListaOrdenadaAgendamento {
 
         while (atual != null) {
             Agendamento ag = atual.agendamento;
-            //Inserção das informações nas divs para os agendamentos
-            sb.append("<div class='agenda-item' id='agendamento-").append(ag.getIdAgendamento()).append("'>");
-            sb.append("<div class='horario'>").append(ag.getHoraAgendamento().format(horaFmt)).append("</div>");
+
+            String bgClass = "";
+            String statusTexto = "";
+            boolean desabilitarConfirmar = false;
+            boolean desabilitarCancelar = false;
+
+            // Define cor de fundo, texto e estado dos botões conforme o status
+            if (ag.getStatusAgendamento() == Agendamento.StatusAgendamento.Concluído) {
+                bgClass = "background-color: rgba(25, 135, 84, 0.3);"; // verde suave
+                desabilitarConfirmar = true;
+                desabilitarCancelar = true;
+                statusTexto = "<div class='status text-success fw-bold'><i class='bi bi-check-square-fill'></i> Confirmado</div>";
+            } else if (ag.getStatusAgendamento() == Agendamento.StatusAgendamento.Cancelado) {
+                bgClass = "background-color: rgba(220, 53, 69, 0.3);"; // vermelho suave
+                desabilitarConfirmar = true;
+                desabilitarCancelar = true;
+                statusTexto = "<div class='status text-danger fw-bold'><i class='bi bi-x-square-fill'></i> Cancelado</div>";
+            }
+
+            // Monta a estrutura HTML do agendamento
+            sb.append("<div class='agenda-item' style='").append(bgClass)
+                    .append("' id='agendamento-").append(ag.getIdAgendamento()).append("'>");
+
+            sb.append("<div class='horario'>")
+                    .append(ag.getHoraAgendamento().format(horaFmt))
+                    .append("</div>");
+
             sb.append("<div class='info'>")
                     .append("<strong>Nome:</strong> ").append(ag.getCliente().getNomeCliente()).append("<br/>")
                     .append("<strong>Telefone:</strong> ").append(ag.getCliente().getTelefoneCliente()).append("<br/>")
                     .append("<strong>Data:</strong> ").append(ag.getDataAgendamento().format(dataFmt)).append("<br/>")
-                    .append("<strong>Serviço:</strong> ").append(ag.getServico().getNomeCorte())
+                    .append("<strong>Serviço:</strong> ").append(ag.getServico().getNomeCorte()).append("<br/>")
+                    .append(statusTexto)
                     .append("</div>");
+
             sb.append("<div class='acoes'>")
-                    .append("<button class='btn btn-success' onclick='confirmar(")
-                    .append(ag.getIdAgendamento()).append(")'><i class='bi bi-check'></i></button>")
-                    .append(" ")
+                    .append("<button class='btn btn-success me-2' onclick='confirmar(")
+                    .append(ag.getIdAgendamento()).append(")' ")
+                    .append(desabilitarConfirmar ? "disabled" : "")
+                    .append("><i class='bi bi-check'></i></button> ")
 
                     .append("<button class='btn btn-danger' onclick='cancelar(")
-                    .append(ag.getIdAgendamento()).append(")'><i class='bi bi-x'></i></button>")
+                    .append(ag.getIdAgendamento()).append(")' ")
+                    .append(desabilitarCancelar ? "disabled" : "")
+                    .append("><i class='bi bi-x'></i></button>")
                     .append("</div>");
-            sb.append("</div>");
 
+            sb.append("</div>");
             atual = atual.proximo;
         }
 
         return sb.toString();
     }
 
-    //Método view para o cliente
+    // Método view para o cliente
     public String viewCliente() {
         StringBuilder sb = new StringBuilder();
         AgendamentoNo atual = inicio;
@@ -107,7 +136,7 @@ public class ListaOrdenadaAgendamento {
 
         while (atual != null) {
             Agendamento ag = atual.agendamento;
-            //Inserção dos agendamentos no menu lateral para o cliente logado
+            // Inserção dos agendamentos no menu lateral para o cliente logado
             sb.append("<li data-id='").append(ag.getIdAgendamento()).append("'>");
             sb.append(dataFmt.format(ag.getDataAgendamento()))
                     .append(" às ")
