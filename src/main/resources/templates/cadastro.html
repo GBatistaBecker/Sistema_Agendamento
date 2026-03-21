@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cadastro - Pitbull Barber</title>
+  <link rel="stylesheet" href="/styles/style.css" />
+</head>
+<body class="center">
+  <div class="cadastro-container">
+    <img src="/imagens/pitbull-logo-branco.png" alt="Logo Pitbull Barber" class="login-logo"/>
+    <form id="cadastro-form" method="post" action="/barbearia/cadastro">
+      <input type="text" id="nomeCliente" name="nomeCliente" placeholder="Nome" required />
+      <input type="tel" id="telefoneCliente" name="telefoneCliente" placeholder="Telefone" maxlength="15" required />
+      <input type="email" id="emailCliente" name="emailCliente" placeholder="seu@email.com" required/>
+        <p class="cadastro-link" style="color: #ccc;">
+          Já possui uma conta? 
+        <a href="/barbearia/login" style="color: #B22222;">Clique aqui</a>
+      </p>
+      <button type="submit" >Cadastre-se</button>
+    </form>
+
+  </div>
+  <script src="/script/cadastroScript.js"></script>
+</body>
+</html>

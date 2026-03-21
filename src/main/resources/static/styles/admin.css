@@ -1,0 +1,110 @@
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(to bottom, #ffffff, #B0ACAC);
+  background-image: url('/imagens/tela-admin.png');
+  background-size: cover;
+  background-position: center;
+}
+
+.logo {
+  height: 200px;
+}
+
+.agenda-card {
+  background-color: whitesmoke;
+  border-radius: 10px;
+  padding: 30px 20px 20px 20px; 
+  margin-top: 0; 
+  opacity:75%;
+}
+
+.agenda-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #ccc;
+  padding: 10px 0;
+}
+
+.agenda-item.cancelado {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 10px 0;
+}
+
+.agenda-item.confirmado {
+  background-color: #d4edda;
+  color: #155724;
+  padding: 10px 0;
+}
+
+.horario {
+  font-weight: bold;
+  width: 80px;
+}
+
+.info {
+  flex: 1;  
+  margin-left: 15px;
+}
+
+.acoes button {
+  margin-left: 5px;
+  color: white;
+  font-size: 18px;
+}
+
+.titulo {
+  color: white;
+}
+
+/* Deixe branco apenas os textos normais */
+.agendamento-container {
+  color: white;
+}
+
+.acoes .btn-success {
+  width: 40px;
+}
+
+.acoes .btn-danger {
+  width: 40px;
+}
+
+.horario-almoco {
+  background-color: #ccc;
+  font-weight: bold;
+}
+
+.disponivel {
+  color: #999;
+  font-style: italic;
+}
+
+h2 {
+  text-align: center;
+  font-family: 'Courier New', Courier, monospace;
+  font-weight: bold;
+}
+
+.linha-topo {
+  margin: 0 0 10px 0;
+}
+
+/* Botões da paginação */
+.pagination .pagination-btn {
+  background-color: #212529;   /* preto/cinza escuro, combina com topo */
+  color: #fff !important;
+  border: 1px solid #444;
+  border-radius: 8px;
+  margin: 0 3px;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.pagination .active .pagination-btn {
+  background-color: #999; /* página atual destacada */
+  border-color: #ffffff;
+}
+
