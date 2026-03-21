@@ -155,6 +155,19 @@ public class BarbeariaController {
     }
 
 
+    @GetMapping("/agendamentos")
+    public String exibirAgendamentos(@RequestParam(required = false) Integer servicoId, Model model) {
+        model.addAttribute("servicos", servicoRepository.findAll());
+        model.addAttribute("servicoSelecionadoId", servicoId);
+        return "agendamentos";
+    }
+
+    @GetMapping("/horarios")
+    public String mostrarHorarios() {
+        return "horarios";
+    }
+
+
     @Operation(summary = "Realizar agendamento", description = "Cria um novo agendamento para o cliente logado, vinculando um serviço e horário.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Agendamento criado com sucesso"),
