@@ -4,6 +4,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const nomeInput = document.getElementById("nomeCliente");
   const telefoneInput = document.getElementById("telefoneCliente");
   const emailInput = document.getElementById("emailCliente");
+    const senhaInput = document.getElementById("senhaUsuario");
 
   // --- FUNÇÃO PARA MOSTRAR ALERTAS (AGORA DEFINIDA) ---
   function mostrarAlerta(mensagem) {
@@ -90,5 +91,13 @@ document.addEventListener("DOMContentLoaded", function () {
   const erroServidor = document.getElementById("server-error-message");
   if (erroServidor && erroServidor.textContent.trim() !== "") {
     mostrarAlerta(erroServidor.textContent);
+  }
+
+  // --- VALIDAÇAO SENHA
+  const senha = senhaInput.value.trim();
+  if (senha.length < 8) {
+    e.preventDefault();
+    mostrarAlerta("A senha deve ter pelo menos 8 caracteres.");
+    return;
   }
 });

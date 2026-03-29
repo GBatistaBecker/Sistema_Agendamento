@@ -43,6 +43,9 @@ public class BarbeariaController {
     @Autowired
     AgendamentoRepository agendamentoRepository;
 
+    @Autowired
+    UsuarioRepository usuarioRepository;
+
     // === Páginas principais ===
     @GetMapping("/cadastro")
     public String mostrarCadastro() {
@@ -56,11 +59,17 @@ public class BarbeariaController {
     })
     @PostMapping("/cadastro")
     public String cadastrarCliente(
-            @Parameter(description = "Nome completo do cliente", example = "João da Silva") @RequestParam String nomeCliente,
 
-            @Parameter(description = "Telefone com DDD", example = "(11)99999-8888") @RequestParam String telefoneCliente,
+            @Parameter(description = "Nome completo do cliente", example = "João da Silva")
+            @RequestParam String nomeCliente,
 
-            @Parameter(description = "E-mail válido", example = "joao@gmail.com") @RequestParam String emailCliente,
+            @Parameter(description = "Telefone com DDD", example = "(11)99999-8888")
+            @RequestParam String telefoneCliente,
+
+            @Parameter(description = "E-mail válido", example = "joao@gmail.com")
+            @RequestParam String emailCliente,
+
+            @RequestParam String senhaUsuario,
 
             RedirectAttributes redirectAttributes) {
 
@@ -91,11 +100,39 @@ public class BarbeariaController {
             return "redirect:/barbearia/cadastro";
         }
 
+        if (senhaUsuario.length() < 6) {
+            redirectAttributes.addFlashAttribute("erroSenha", "A senha deve ter pelo menos 6 caracteres.");
+            return "redirect:/barbearia/cadastro";
+        }
+
+        // =========================
+        // SALVAR CLIENTE
+        // =========================
+
         Cliente novoCliente = new Cliente();
         novoCliente.setNomeCliente(nomeCliente);
         novoCliente.setTelefoneCliente(telefoneCliente);
         novoCliente.setEmailCliente(emailCliente);
+
         clienteRepository.save(novoCliente);
+
+        // =========================
+        // CRIAR USUÁRIO
+        // =========================
+
+        Usuario usuario = new Usuario();
+
+        usuario.setEmailUsuario(emailCliente);
+        usuario.setSenhaUsuario(senhaUsuario);
+        usuario.setCliente(novoCliente);
+
+        Permissao permissao = new Permissao();
+        permissao.setIdPermissao(1); // Cliente
+
+        usuario.setPermissao(permissao);
+
+        System.out.println("SALVANDO USUARIO...");
+        usuarioRepository.save(usuario);
 
         redirectAttributes.addFlashAttribute("sucessoCadastro", "Cadastro realizado com sucesso! Faça login.");
         return "redirect:/barbearia/login";

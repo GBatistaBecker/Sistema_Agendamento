@@ -17,9 +17,6 @@ public class Usuario {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer idUsuario;
 
-    @Column(nullable = false, length = 80)
-    private String nomeUsuario;
-
     @Column(nullable = false, length = 80, unique = true)
     private String emailUsuario;
 
@@ -41,10 +38,9 @@ public class Usuario {
     public Usuario() {
     }
 
-    public Usuario(Integer idUsuario, String nomeUsuario, String emailUsuario, String senhaUsuario, Permissao permissao,
+    public Usuario(Integer idUsuario, String emailUsuario, String senhaUsuario, Permissao permissao,
             Cliente cliente, Funcionario funcionario) {
         this.idUsuario = idUsuario;
-        this.nomeUsuario = nomeUsuario;
         this.emailUsuario = emailUsuario;
         this.senhaUsuario = senhaUsuario;
         this.permissao = permissao;
@@ -58,14 +54,6 @@ public class Usuario {
 
     public void setIdUsuario(Integer idUsuario) {
         this.idUsuario = idUsuario;
-    }
-
-    public String getNomeUsuario() {
-        return nomeUsuario;
-    }
-
-    public void setNomeUsuario(String nomeUsuario) {
-        this.nomeUsuario = nomeUsuario;
     }
 
     public String getEmailUsuario() {
