@@ -45,7 +45,7 @@
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
-        <ul id="listaAgendamentos" class="list-unstyled"></ul>
+        <ul id="listaAgendamentos" class="list-group list-group-flush"></ul>
       </div>
     </div>
   </div>
@@ -156,6 +156,18 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="/script/servicoScript.js"></script>
+
+<!-- TOAST SUCESSO EXCLUSÃO -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+  <div id="toastExclusao" class="toast align-items-center text-bg-success border-0">
+    <div class="d-flex">
+      <div class="toast-body">
+        Agendamento removido com sucesso.
+      </div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+    </div>
+  </div>
+</div>
 
 </body>
 </html>

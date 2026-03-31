@@ -244,6 +244,28 @@ h1 {
   background-color: #FFFAFA;
 }
 
+#modalConfirmarExclusao .modal-body{
+  color: black;
+}
+
+#listaAgendamentos{
+  color: black;
+}
+
+#listaAgendamentos li{
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 .modal-footer{
   background-color: var(--cinza-escuro)
+}
+
+.removing {
+  opacity: 0;
+  transform: translateX(40px);
+  transition: all 0.35s ease;
 }
