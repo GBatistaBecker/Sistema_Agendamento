@@ -238,7 +238,11 @@ modalHistorico.addEventListener("show.bs.modal", () => {
    =============================== */
 
 let idParaExcluir = null;
-const modalExcluir = new bootstrap.Modal(document.getElementById('modalConfirmarExclusao'));
+
+const modalExcluir = new bootstrap.Modal(
+  document.getElementById('modalConfirmarExclusao')
+);
+
 const confirmarBtn = document.getElementById('btnConfirmarExclusao');
 
 function confirmarExclusao(id) {
@@ -251,6 +255,7 @@ confirmarBtn.addEventListener('click', async () => {
   if (!idParaExcluir) return;
 
   try {
+
     const res = await fetch('/barbearia/excluir-agendamento?idAgendamento=' + idParaExcluir, {
       method: 'POST'
     });
@@ -258,12 +263,32 @@ confirmarBtn.addEventListener('click', async () => {
     if (!res.ok) throw new Error();
 
     const item = document.querySelector(`li[data-id="${idParaExcluir}"]`);
-    if (item) item.remove();
+
+    if (item) {
+
+      item.classList.add("removing");
+
+      setTimeout(() => {
+        item.remove();
+      }, 350);
+
+    }
+
+    const toast = new bootstrap.Toast(
+      document.getElementById('toastExclusao')
+    );
+
+    toast.show();
 
   } catch {
+
     alert("Erro ao excluir agendamento.");
+
   } finally {
+
     idParaExcluir = null;
     modalExcluir.hide();
+
   }
+
 });
