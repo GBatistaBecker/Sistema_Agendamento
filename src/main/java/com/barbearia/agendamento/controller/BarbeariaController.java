@@ -313,6 +313,12 @@ public class BarbeariaController {
         return agendamentos.stream().map(ag -> ag.getHoraAgendamento().toString()).toList();
     }
 
+    @GetMapping("/logout")
+    public String logout(HttpSession session){
+        session.invalidate();
+        return "redirect:/login";
+    }
+
     // === ROTAS DE FUNCIONÁRIO (Admin) ===
 
     @GetMapping("/loginadm")

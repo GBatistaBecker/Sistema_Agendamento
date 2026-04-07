@@ -228,18 +228,6 @@ h1 {
   background-color: var(--cinza-escuro) !important;
   border-color: var(--cinza-escuro) !important;
 }
-
-.map{
-  position: absolute;
-  right: 0;
-  top: 0;
-  width: 12%;      /* largura do mapa (ajuste se quiser) */
-  height: 15vh;   /* altura total da tela */
-  z-index: 1;      /* abaixo da logo flutuante (que está z-index 2) */
-  border-radius: 5px;
-  margin: 10px 10px; 
-}
-
 .modal-body{
   background-color: #FFFAFA;
 }
@@ -264,7 +252,6 @@ h1 {
   background-color: var(--cinza-escuro)
 }
 
-<<<<<<< HEAD
 .whatsapp-float {
     position: fixed;
     width: 60px;
@@ -281,12 +268,19 @@ h1 {
 }
 
 .whatsapp-float img {
-    width: 35px;
-    height: 35px;
-=======
+  width: 35px;
+  height: 35px;
+}
+
 .removing {
   opacity: 0;
   transform: translateX(40px);
   transition: all 0.35s ease;
->>>>>>> 3508036b660045774530e6dc11ab8bc2f97a27c2
+}
+
+.btn-logout{
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
 }
