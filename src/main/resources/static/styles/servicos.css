@@ -1,0 +1,294 @@
+:root {
+  --cinza-escuro: #343a40;
+  --cinza-medio: #495057;
+  --cinza-claro: #6c757d;
+  --cinza-bg: #f8f9fa;
+  --cinza-soft: #e9ecef;
+}
+
+/* ===============================
+   BODY / FUNDO
+   =============================== */
+
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-image: url('/imagens/pitbull-fundo-sem-cachorro.png');
+  background-size: cover;
+  background-position: center;
+  backdrop-filter: brightness(0.95);
+}
+
+header {
+  text-align: center;
+  padding: 20px;
+}
+
+header img.logo {
+  max-width: 200px;
+  margin-bottom: 10px;
+}
+
+h1 {
+  font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+  font-size: 2rem;
+  margin: 10px 0;
+  color: whitesmoke;
+  letter-spacing: 1px;
+}
+
+/* ===============================
+   CARDS PRINCIPAIS (HISTÓRICO / AGENDAR)
+   =============================== */
+
+.dashboard-card {
+  background-color: whitesmoke;
+  border-radius: 16px;
+  padding: 40px 20px;
+  width: 350px;
+  height: 200px;
+  text-align: center;
+  opacity: 0.9;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+  transition: all 0.35s cubic-bezier(.4,0,.2,1);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.dashboard-card h2 {
+  margin-bottom: 10px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-6px) scale(1.04);
+  box-shadow: 0 12px 28px rgba(0,0,0,0.25);
+  background-color: var(--cinza-medio);
+  color: white;
+}
+
+/* ===============================
+   INDICADOR DE ETAPAS
+   =============================== */
+
+.step-indicator {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 25px;
+  font-weight: 600;
+}
+
+.step {
+  padding: 6px 16px;
+  border-radius: 30px;
+  background-color: var(--cinza-soft);
+  color: var(--cinza-escuro);
+  transition: all 0.3s ease;
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
+}
+
+.step.active {
+  background-color: var(--cinza-medio);
+  color: white;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.step.completed {
+  background-color: var(--cinza-escuro);
+  color: white;
+}
+
+/* ===============================
+   CARDS DE SERVIÇO
+   =============================== */
+
+.servico-selecao-card {
+  border: 2px solid transparent;
+  border-radius: 14px;
+  background-color: rgba(248,249,250,0.9);
+  transition: all 0.3s cubic-bezier(.4,0,.2,1);
+  cursor: pointer;
+  padding: 15px;
+}
+
+.servico-selecao-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 18px rgba(0,0,0,0.15);
+}
+
+.servico-selecao-card.selected {
+  border-color: var(--cinza-medio);
+  transform: translateY(-4px);
+  box-shadow: 0 0 0 3px rgba(73,80,87,0.25);
+}
+
+/* ===============================
+   FADE IN DAS ETAPAS
+   =============================== */
+
+.fade-section {
+  opacity: 0;
+  transform: translateY(15px);
+  transition: all 0.4s cubic-bezier(.4,0,.2,1);
+  display: none;
+}
+
+.fade-section.show {
+  opacity: 1;
+  transform: translateY(0);
+  display: block;
+}
+
+/* ===============================
+   INPUT DE DATA
+   =============================== */
+
+#inputData {
+  border-radius: 10px;
+  padding: 10px;
+  text-align: center;
+  font-size: 1rem;
+  border: 1px solid var(--cinza-soft);
+  transition: 0.3s ease;
+}
+
+#inputData:focus {
+  border-color: var(--cinza-medio);
+  box-shadow: 0 0 0 0.2rem rgba(73,80,87,0.2);
+}
+
+/* ===============================
+   HORÁRIOS
+   =============================== */
+
+.hora-card {
+  background-color: var(--cinza-bg);
+  padding: 15px 20px;
+  border-radius: 10px;
+  text-align: center;
+  min-width: 100px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+  transition: all 0.3s cubic-bezier(.4,0,.2,1);
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.hora-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 18px rgba(0,0,0,0.18);
+}
+
+.hora-card.indisponivel {
+  background-color: var(--cinza-soft);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.hora-card.selected {
+  background-color: var(--cinza-medio);
+  color: white;
+  transform: translateY(-4px);
+  box-shadow: 0 0 0 3px rgba(73,80,87,0.25);
+}
+
+/* ===============================
+   BOTÃO CONFIRMAR
+   =============================== */
+
+#btnConfirmarAgendamento {
+  min-width: 220px;
+  font-weight: 600;
+  border-radius: 30px;
+  transition: all 0.3s ease;
+}
+
+#btnConfirmarAgendamento:disabled {
+  background-color: var(--cinza-soft) !important;
+  border-color: var(--cinza-soft) !important;
+  cursor: not-allowed;
+}
+
+/* Remove brilho azul padrão Bootstrap */
+
+.btn-primary,
+.btn-primary:focus,
+.btn-primary:active {
+  background-color: var(--cinza-medio) !important;
+  border-color: var(--cinza-medio) !important;
+  box-shadow: none !important;
+}
+
+.btn-primary:hover {
+  background-color: var(--cinza-escuro) !important;
+  border-color: var(--cinza-escuro) !important;
+}
+
+.map{
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 12%;      /* largura do mapa (ajuste se quiser) */
+  height: 15vh;   /* altura total da tela */
+  z-index: 1;      /* abaixo da logo flutuante (que está z-index 2) */
+  border-radius: 5px;
+  margin: 10px 10px; 
+}
+
+.modal-body{
+  background-color: #FFFAFA;
+}
+
+.modal-footer{
+  background-color: var(--cinza-escuro)
+}
+
+/* ===============================
+   LISTA DE AGENDAMENTOS (HIST�RICO)
+   =============================== */
+
+#listaAgendamentos {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+#listaAgendamentos li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  margin-bottom: 10px;
+  background-color: var(--cinza-bg);
+  border-radius: 8px;
+  border-left: 4px solid var(--cinza-medio);
+  color: var(--cinza-escuro);
+  font-size: 0.95rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+#listaAgendamentos li:hover {
+  background-color: var(--cinza-soft);
+  transform: translateX(2px);
+  transition: all 0.2s ease;
+}
+
+.btn-excluir {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.btn-excluir:hover {
+  background-color: rgba(220, 53, 69, 0.2);
+  transform: scale(1.1);
+}

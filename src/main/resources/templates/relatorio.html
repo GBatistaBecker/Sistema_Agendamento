@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Relatório - Pitbull Barber</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="/styles/relatorio.css"/>
+</head>
+
+<body class="admin-background">
+  <div class="container mt-4">
+
+    <!-- Cabeçalho -->
+    <div class="d-flex align-items-center justify-content-between mb-3">
+      <img src="/imagens/pitbull-logo-branco.png" class="logo" alt="Logo Pitbull Barber"/>
+      <h2 class="titulo">RELATÓRIO</h2>
+      <a href="/barbearia/admin" class="btn btn-light">
+        <i class="bi bi-arrow-left"></i> Voltar
+      </a>
+    </div>
+
+    <!-- 🔍 Filtros e busca -->
+    <div class="agenda-card p-3 mb-3">
+      <div class="d-flex flex-wrap align-items-center gap-2 justify-content-between">
+
+        <!-- Botões de filtro -->
+        <div class="dropdown">
+          <button class="btn btn-dark dropdown-toggle" type="button" id="dropdownFiltros" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-funnel"></i> Filtros e Ordenação
+          </button>
+          <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownFiltros">
+            <li>
+              <a class="dropdown-item" href="/barbearia/relatorio?ordenar=data">
+                <i class="bi bi-calendar3"></i> Ordenar por Data
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item" href="/barbearia/relatorio?ordenar=corte">
+                <i class="bi bi-scissors"></i> Corte mais feito
+              </a>
+            </li>
+            <li><hr class="dropdown-divider"></li>
+            <li>
+              <a class="dropdown-item text-success" href="/barbearia/relatorio?status=CONCLUÍDO">
+                <i class="bi bi-check2-circle"></i> Confirmados
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item text-danger" href="/barbearia/relatorio?status=CANCELADO">
+                <i class="bi bi-x-circle"></i> Cancelados
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Campo de busca -->
+        <form th:action="@{/barbearia/relatorio}" method="get" class="d-flex align-items-center">
+          <input type="text" name="nome" class="form-control me-2" placeholder="Buscar por cliente..." style="width: 200px;">
+          <button type="submit" class="btn btn-dark">
+            <i class="bi bi-search"></i>
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- 📋 Conteúdo do relatório -->
+    <div class="agenda-card p-3">
+      <table class="table table-striped table-dark table-bordered align-middle text-center">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Cliente</th>
+            <th>Serviço</th>
+            <th>Data</th>
+            <th>Hora</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="a, iterStat : ${agendamentos}">
+            <td th:text="${paginaAtual * 10 + iterStat.index + 1}"></td>
+            <td th:text="${a.cliente.nomeCliente}"></td>
+            <td th:text="${a.servico.nomeCorte}"></td>
+            <td th:text="${#temporals.format(a.dataAgendamento, 'dd/MM/yyyy')}"></td>
+            <td th:text="${a.horaAgendamento}"></td>
+            <td th:text="${a.statusAgendamento}"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+   <!--Paginação-->
+    <div class="d-flex justify-content-center mt-3">
+      <nav aria-label="Page navigation">
+        <ul class="pagination">
+          <li class="page-item" th:classappend="${paginaAtual == 0} ? 'disabled'">
+            <a class="page-link bg-dark text-white border-dark"
+              th:href="@{/barbearia/relatorio(
+                  page=${paginaAtual - 1},
+                  ordenar=${ordenar},
+                  status=${status},
+                  nome=${nome}
+              )}"
+              aria-label="Anterior">
+              <span aria-hidden="true">&laquo;</span>
+            </a>
+          </li>
+
+          <li class="page-item"
+              th:each="i : ${#numbers.sequence(0, totalPaginas - 1)}"
+              th:classappend="${i == paginaAtual} ? 'active'">
+            <a class="page-link bg-dark text-white border-dark"
+              th:href="@{/barbearia/relatorio(
+                  page=${i},
+                  ordenar=${ordenar},
+                  status=${status},
+                  nome=${nome}
+              )}"
+              th:text="${i + 1}"></a>
+          </li>
+
+          <li class="page-item" th:classappend="${paginaAtual + 1 >= totalPaginas} ? 'disabled'">
+            <a class="page-link bg-dark text-white border-dark"
+              th:href="@{/barbearia/relatorio(
+                  page=${paginaAtual + 1},
+                  ordenar=${ordenar},
+                  status=${status},
+                  nome=${nome}
+              )}"
+              aria-label="Próxima">
+              <span aria-hidden="true">&raquo;</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+
+
+
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

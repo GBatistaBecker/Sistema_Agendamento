@@ -1,0 +1,119 @@
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: linear-gradient(to bottom, #ffffff, #B0ACAC);
+  position: relative;
+  background-image: url('/imagens/background-pitbull.png');
+  background-size: cover;
+  background-position: center;
+}
+  
+  .center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+
+  .imagem{
+      position: absolute;
+  top: 20px;
+  left: 20px;
+  width: 200px;
+  border-radius: 8px;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+  z-index: 2;
+  }
+  
+  #logo-click {
+    cursor: pointer;
+    width: 380px; 
+    transition: transform 0.3s;
+  }
+  
+  #logo-click:hover {
+    transform: scale(1.05);
+  }
+  
+  .login-container {
+    text-align: center;
+  }
+  
+  .login-logo {
+    width: 275px; 
+    margin-bottom: 20px;
+  }
+  
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  input {
+    padding: 10px;
+    font-size: 16px;
+    width: 250px;
+  }
+  
+  button {
+    padding: 10px;
+    font-size: 18px;
+    background-color: gray;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+  
+  button:hover {
+    background-color: darkgray;
+  }
+
+.custom-alert-error {
+  padding: 15px 20px;
+  border-radius: 8px;
+  color: #a94442;
+  background-color: #f2dede;
+  border: 1px solid #ebccd1;
+  min-width: 300px;
+  max-width: 400px;
+  box-sizing: border-box;
+  text-align: center;
+  opacity: 1;
+  transition: opacity 0.5s ease;
+  font-weight: bold;
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+/* atenção a esse para a validacao do cadastro*/
+.custom-alert-success {
+  padding: 15px 20px;
+  border-radius: 8px;
+  color: #155724;
+  background-color: #d4edda;
+  border: 1px solid #c3e6cb;
+  min-width: 300px;
+  max-width: 400px;
+  box-sizing: border-box;
+  text-align: center;
+  opacity: 1;
+  transition: opacity 0.5s ease;
+  font-weight: bold;
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.cadastro-link {
+  text-align: center; 
+  width: 100%;  
+  margin-top: 15px; 
+  margin-bottom: 20px;
+}
