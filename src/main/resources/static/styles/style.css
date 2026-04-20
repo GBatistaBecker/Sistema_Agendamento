@@ -117,3 +117,59 @@ body {
   margin-top: 15px; 
   margin-bottom: 20px;
 }
+
+.whatsapp-float {
+    position: fixed;
+    width: 60px;
+    height: 60px;
+    bottom: 20px;
+    right: 20px;
+    background-color: #25D366;
+    border-radius: 50%;
+    box-shadow: 2px 2px 10px rgba(0,0,0,0.3);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.whatsapp-float img {
+    width: 35px;
+    height: 35px;
+}
+
+.google-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  width: 85%;              /* menor que o botão principal */
+  max-width: 260px;        /* limita largura */
+
+  margin: 10px auto;
+
+  padding: 8px;            /* menor altura */
+  font-size: 13px;         /* texto menor */
+
+  background-color: #fff;
+  border: 1px solid #dadce0;
+  border-radius: 5px;
+
+  text-decoration: none;
+  color: #3c4043;
+
+  transition: background-color 0.2s, box-shadow 0.2s;
+}
+
+.google-btn img {
+  width: 20px;
+  height: 20px;
+}
+
+.google-btn:hover {
+  background-color: #f7f8f8;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+

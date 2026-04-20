@@ -16,13 +16,16 @@
       alertaExistente.remove();
     }
 
+    // Cria o elemento do alerta
     const alertaDiv = document.createElement("div");
     alertaDiv.className = "custom-alert-error";
     alertaDiv.textContent = mensagem;
 
+    // Adiciona o alerta no início do container
     const container = document.querySelector(".cadastro-container");
     container.prepend(alertaDiv);
 
+    // Opcional: faz o alerta desaparecer depois de 5 segundos
     setTimeout(() => {
       alertaDiv.style.opacity = '0';
       setTimeout(() => alertaDiv.remove(), 500);

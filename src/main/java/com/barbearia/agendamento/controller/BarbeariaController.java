@@ -161,6 +161,10 @@ public class BarbeariaController {
 
     @PostMapping("/login")
     public String verificarCliente(
+            @Parameter(description = "Nome completo do cliente", example = "João da Silva") @RequestParam String nomeCliente,
+
+            @Parameter(description = "Telefone com DDD", example = "(11)99999-8888") @RequestParam String telefoneCliente,
+
             @RequestParam String emailUsuario,
             @RequestParam String senhaUsuario,
             RedirectAttributes redirectAttributes,
@@ -231,9 +235,9 @@ public class BarbeariaController {
     @PostMapping("/agendar")
     @ResponseBody
     public ResponseEntity<String> realizarAgendamento(
-            @RequestParam Integer idServico,
-            @RequestParam String dataAgendamento,
-            @RequestParam String horaAgendamento,
+            @Parameter(description = "ID do serviço", example = "1") @RequestParam Integer idServico,
+            @Parameter(description = "Data no formato YYYY-MM-DD", example = "2025-11-02") @RequestParam String dataAgendamento,
+            @Parameter(description = "Hora no formato HH:mm", example = "15:30") @RequestParam String horaAgendamento,
             HttpSession session) {
 
         Usuario usuario = (Usuario) session.getAttribute("usuarioLogado");
@@ -363,6 +367,12 @@ public class BarbeariaController {
         LocalDate dataAgendamento = LocalDate.parse(data);
         List<Agendamento> agendamentos = agendamentoRepository.findByDataAgendamento(dataAgendamento);
         return agendamentos.stream().map(ag -> ag.getHoraAgendamento().toString()).toList();
+    }
+
+    @GetMapping("/logout")
+    public String logout(HttpSession session){
+        session.invalidate();
+        return "redirect:/login";
     }
 
     // === ROTAS DE FUNCIONÁRIO (Admin) ===

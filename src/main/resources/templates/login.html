@@ -17,7 +17,8 @@
   <div class="login-container">
     <img src="/imagens/pitbull-logo-branco.png" alt="Logo Pitbull Barber" class="login-logo"/>
     <form id="login-form" method="post" action="/barbearia/login">
-    
+
+
       <div id="server-error-message" style="display:none;"
            th:if="${erroTelefone} or ${erroTelefoneExistente} or ${erroNaoEncontrado}"
            th:text="${erroTelefone ?: erroTelefoneExistente ?: erroNaoEncontrado}">
@@ -26,14 +27,32 @@
       <input type="email" id="emailUsuario" name="emailUsuario" placeholder="Email" required autocomplete="off" />
       <input type="password" id="senhaUsuario" name="senhaUsuario" placeholder="Senha" required autocomplete="off"/>
       <!-- atento ao autocomplete ou entao o cache do navegador -->
-      
+
       <p class="cadastro-link" style="color: #ccc;">
         Ainda não tem cadastro? 
         <a href="/barbearia/cadastro" style="color: #ffffff;">Clique aqui</a>
       </p>
-      
+
+
+
       <button type="submit">Entrar</button>
+
+        <a href="/oauth2/authorization/google" class="google-btn">
+            <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google">
+            <span>Fazer login com o Google</span>
+        </a>
+
     </form>
+  </div>
+
+    <a href="https://wa.me/5548998348321?text=Olá,%20gostaria%20de%20uma%20ajuda%20com%20o%20agendamento%20da%20barbearia."
+     class="whatsapp-float"
+     target="_blank"
+     aria-label="Fale conosco no WhatsApp">
+
+      <img src="https://cdn-icons-png.flaticon.com/512/733/733585.png"
+           alt="WhatsApp">
+  </a>
 
   <script src="/script/loginScript.js"></script>
 </body>

@@ -38,35 +38,51 @@ document.addEventListener("DOMContentLoaded", function () {
   // --- CAMPO SENHA - SEM M�SCARA ---
   senhaInput.addEventListener("input", (e) => {
     // Sem m�scara para senha
-  });
+    // --- MÁSCARA DE TELEFONE ---
+    telefoneInput.addEventListener("input", (e) => {
+      let valor = e.target.value.replace(/\D/g, "");
+      valor = valor.substring(0, 11);
 
-  // --- VALIDA��O NO ENVIO DO FORMUL�RIO ---
-  form.addEventListener("submit", function (e) {
-    const senha = senhaInput.value.trim();
-    const nome = nomeInput.value.trim();
+      if (valor.length > 10) {
+        valor = valor.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3");
+      } else if (valor.length > 6) {
+        valor = valor.replace(/(\d{2})(\d{4})(\d{4})/, "($1) $2-$3");
+      } else if (valor.length > 2) {
+        valor = valor.replace(/(\d{2})(\d+)/, "($1) $2");
+      } else if (valor.length > 0) {
+        valor = valor.replace(/(\d+)/, "($1");
+      }
+      e.target.value = valor;
+    });
 
-    if (senha.length < 6) {
-      e.preventDefault();
-      mostrarAlertaErro("Senha deve ter pelo menos 6 caracteres.");
-      return;
+    // --- VALIDA��O NO ENVIO DO FORMUL�RIO ---
+    form.addEventListener("submit", function (e) {
+      const senha = senhaInput.value.trim();
+      const nome = nomeInput.value.trim();
+
+      if (senha.length < 6) {
+        e.preventDefault();
+        mostrarAlertaErro("Senha deve ter pelo menos 6 caracteres.");
+        return;
+      }
+
+      if (nome === "") {
+        e.preventDefault();
+        mostrarAlertaErro("O campo Nome � obrigat�rio.");
+        return;
+      }
+    });
+
+    // --- LIDANDO COM ERROS VINDOS DO BACKEND ---
+    const serverErrorDiv = document.getElementById("server-error-message");
+    if (serverErrorDiv && serverErrorDiv.textContent.trim() !== "") {
+      mostrarAlertaErro(serverErrorDiv.textContent);
     }
 
-    if (nome === "") {
-      e.preventDefault();
-      mostrarAlertaErro("O campo Nome � obrigat�rio.");
-      return;
+    // --- EXIBIR MENSAGEM DE SUCESSO DO CADASTRO ---
+    const successDiv = document.getElementById("success-message");
+    if (successDiv && successDiv.textContent.trim() !== "") {
+      mostrarAlertaSucesso(successDiv.textContent);
     }
   });
-
-  // --- LIDANDO COM ERROS VINDOS DO BACKEND ---
-  const serverErrorDiv = document.getElementById("server-error-message");
-  if (serverErrorDiv && serverErrorDiv.textContent.trim() !== "") {
-    mostrarAlertaErro(serverErrorDiv.textContent);
-  }
-
-  // --- EXIBIR MENSAGEM DE SUCESSO DO CADASTRO ---
-  const successDiv = document.getElementById("success-message");
-  if (successDiv && successDiv.textContent.trim() !== "") {
-    mostrarAlertaSucesso(successDiv.textContent);
-  }
-});
+})
