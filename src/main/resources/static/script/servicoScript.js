@@ -33,7 +33,7 @@ document.querySelectorAll(".servico-selecao-card").forEach(card => {
   card.addEventListener("click", () => {
 
     document.querySelectorAll(".servico-selecao-card")
-      .forEach(c => c.classList.remove("selected"));
+        .forEach(c => c.classList.remove("selected"));
 
     card.classList.add("selected");
 
@@ -79,51 +79,51 @@ function carregarHorarios() {
   btnConfirmar.disabled = true;
 
   fetch(`/barbearia/horarios-ocupados?data=${dataSelecionada}&idServico=${servicoSelecionado}`)
-    .then(res => res.json())
-    .then(horariosOcupados => {
+      .then(res => res.json())
+      .then(horariosOcupados => {
 
-      const ocupados = new Set(horariosOcupados);
+        const ocupados = new Set(horariosOcupados);
 
-      let hora = 14;
-      let minuto = 0;
+        let hora = 14;
+        let minuto = 0;
 
-      while (hora < 22) {
+        while (hora < 22) {
 
-        const horaFormatada = `${String(hora).padStart(2,'0')}:${String(minuto).padStart(2,'0')}`;
-        const disponivel = !ocupados.has(horaFormatada);
+          const horaFormatada = `${String(hora).padStart(2,'0')}:${String(minuto).padStart(2,'0')}`;
+          const disponivel = !ocupados.has(horaFormatada);
 
-        const div = document.createElement("div");
-        div.classList.add("hora-card");
-        div.innerHTML = `<strong>${horaFormatada}</strong>`;
+          const div = document.createElement("div");
+          div.classList.add("hora-card");
+          div.innerHTML = `<strong>${horaFormatada}</strong>`;
 
-        if (!disponivel) {
-          div.classList.add("indisponivel");
-        } else {
-          div.addEventListener("click", () => {
+          if (!disponivel) {
+            div.classList.add("indisponivel");
+          } else {
+            div.addEventListener("click", () => {
 
-            document.querySelectorAll(".hora-card")
-              .forEach(h => h.classList.remove("selected"));
+              document.querySelectorAll(".hora-card")
+                  .forEach(h => h.classList.remove("selected"));
 
-            div.classList.add("selected");
-            horaSelecionada = horaFormatada;
+              div.classList.add("selected");
+              horaSelecionada = horaFormatada;
 
-            btnConfirmar.disabled = false;
-          });
+              btnConfirmar.disabled = false;
+            });
+          }
+
+          listaHoras.appendChild(div);
+
+          minuto += 30;
+          if (minuto === 60) {
+            minuto = 0;
+            hora++;
+          }
         }
-
-        listaHoras.appendChild(div);
-
-        minuto += 30;
-        if (minuto === 60) {
-          minuto = 0;
-          hora++;
-        }
-      }
-    })
-    .catch(err => {
-      console.error("Erro ao carregar horários:", err);
-      listaHoras.innerHTML = "<p>Erro ao carregar horários.</p>";
-    });
+      })
+      .catch(err => {
+        console.error("Erro ao carregar horários:", err);
+        listaHoras.innerHTML = "<p>Erro ao carregar horários.</p>";
+      });
 }
 
 /* ===============================
@@ -145,30 +145,30 @@ btnConfirmar.addEventListener("click", () => {
       horaAgendamento: horaSelecionada
     })
   })
-  .then(res => {
-    if (!res.ok) throw new Error("Erro no agendamento");
-    return res.text();
-  })
-  .then(() => {
+      .then(res => {
+        if (!res.ok) throw new Error("Erro no agendamento");
+        return res.text();
+      })
+      .then(() => {
 
-    const partesData = dataSelecionada.split("-");
-    const dataFormatada = `${partesData[2]}/${partesData[1]}/${partesData[0]}`;
+        const partesData = dataSelecionada.split("-");
+        const dataFormatada = `${partesData[2]}/${partesData[1]}/${partesData[0]}`;
 
-    document.getElementById("mensagemModal").innerHTML = `
+        document.getElementById("mensagemModal").innerHTML = `
       ✅ Agendamento realizado com sucesso!<br>
       📅 Data: ${dataFormatada}<br>
       🕒 Horário: ${horaSelecionada}
     `;
 
-    const modalSucesso = new bootstrap.Modal(document.getElementById("modalSucesso"));
-    modalSucesso.show();
+        const modalSucesso = new bootstrap.Modal(document.getElementById("modalSucesso"));
+        modalSucesso.show();
 
-    resetarModal();
+        resetarModal();
 
-  })
-  .catch(err => {
-    alert("Erro ao agendar: " + err.message);
-  });
+      })
+      .catch(err => {
+        alert("Erro ao agendar: " + err.message);
+      });
 });
 
 /* ===============================
@@ -184,10 +184,10 @@ function resetarModal() {
   btnConfirmar.disabled = true;
 
   document.querySelectorAll(".servico-selecao-card")
-    .forEach(c => c.classList.remove("selected"));
+      .forEach(c => c.classList.remove("selected"));
 
   document.querySelectorAll(".hora-card")
-    .forEach(h => h.classList.remove("selected"));
+      .forEach(h => h.classList.remove("selected"));
 
   etapaData.classList.remove("show");
   etapaHorario.classList.remove("show");
@@ -216,21 +216,21 @@ modalHistorico.addEventListener("show.bs.modal", () => {
   fetch("/barbearia/agendamentos-do-usuario", {
     credentials: "include"
   })
-  .then(res => {
-    if (res.status === 401) {
-      window.location.href = "/barbearia/login";
-      return;
-    }
-    if (!res.ok) throw new Error("Erro ao buscar histórico");
-    return res.text();
-  })
-  .then(html => {
-    lista.innerHTML = html || "<li>Nenhum agendamento encontrado.</li>";
-  })
-  .catch(err => {
-    lista.innerHTML = "<li>Erro ao carregar histórico.</li>";
-    console.error(err);
-  });
+      .then(res => {
+        if (res.status === 401) {
+          window.location.href = "/barbearia/login";
+          return;
+        }
+        if (!res.ok) throw new Error("Erro ao buscar histórico");
+        return res.text();
+      })
+      .then(html => {
+        lista.innerHTML = html || "<li>Nenhum agendamento encontrado.</li>";
+      })
+      .catch(err => {
+        lista.innerHTML = "<li>Erro ao carregar histórico.</li>";
+        console.error(err);
+      });
 });
 
 /* ===============================
@@ -238,7 +238,11 @@ modalHistorico.addEventListener("show.bs.modal", () => {
    =============================== */
 
 let idParaExcluir = null;
-const modalExcluir = new bootstrap.Modal(document.getElementById('modalConfirmarExclusao'));
+
+const modalExcluir = new bootstrap.Modal(
+    document.getElementById('modalConfirmarExclusao')
+);
+
 const confirmarBtn = document.getElementById('btnConfirmarExclusao');
 
 function confirmarExclusao(id) {
@@ -259,7 +263,6 @@ confirmarBtn.addEventListener('click', async () => {
     if (!res.ok) throw new Error();
 
     const item = document.querySelector(`li[data-id="${idParaExcluir}"]`);
-    if (item) item.remove();
 
     if (item) {
 
@@ -272,7 +275,7 @@ confirmarBtn.addEventListener('click', async () => {
     }
 
     const toast = new bootstrap.Toast(
-      document.getElementById('toastExclusao')
+        document.getElementById('toastExclusao')
     );
 
     toast.show();

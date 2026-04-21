@@ -26,11 +26,12 @@
 
       <input type="email" id="emailUsuario" name="emailUsuario" placeholder="Email" required autocomplete="off" />
       <input type="password" id="senhaUsuario" name="senhaUsuario" placeholder="Senha" required autocomplete="off"/>
+        <div th:if="${erroLogin}" th:text="${erroLogin}"></div>
       <!-- atento ao autocomplete ou entao o cache do navegador -->
 
       <p class="cadastro-link" style="color: #ccc;">
         Ainda não tem cadastro? 
-        <a href="/barbearia/cadastro" style="color: #ffffff;">Clique aqui</a>
+        <a href="/barbearia/cadastro" style="color: #B22222;">Clique aqui</a>
       </p>
 
 

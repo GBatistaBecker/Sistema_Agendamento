@@ -7,135 +7,121 @@ body {
   background-size: cover;
   background-position: center;
 }
-  
-  .center {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-  }
 
-  .imagem{
-      position: absolute;
+.center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.imagem{
+  position: absolute;
   top: 20px;
   left: 20px;
   width: 200px;
   border-radius: 8px;
   box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
   z-index: 2;
-  }
-  
-  #logo-click {
-    cursor: pointer;
-    width: 380px; 
-    transition: transform 0.3s;
-  }
-  
-  #logo-click:hover {
-    transform: scale(1.05);
-  }
-  
-  .login-container {
-    text-align: center;
-  }
-  
-  .login-logo {
-    width: 275px; 
-    margin-bottom: 20px;
-  }
-  
-  form {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-  }
-  
-  input {
-    padding: 10px;
-    font-size: 16px;
-    width: 250px;
-  }
-  
-  button {
-    padding: 10px;
-    font-size: 18px;
-    background-color: gray;
-    color: white;
-    border: none;
-    cursor: pointer;
-  }
-  
-  button:hover {
-    background-color: darkgray;
-  }
+}
+
+#logo-click {
+  cursor: pointer;
+  width: 380px;
+  transition: transform 0.3s;
+}
+
+#logo-click:hover {
+  transform: scale(1.05);
+}
+
+.login-container {
+  text-align: center;
+}
+
+.login-logo {
+  width: 275px;
+  margin-bottom: 20px;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+input {
+  padding: 10px;
+  font-size: 16px;
+  width: 250px;
+}
+
+button {
+  padding: 10px;
+  font-size: 18px;
+  background-color: gray;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: darkgray;
+}
 
 .custom-alert-error {
-  padding: 15px 20px;
-  border-radius: 8px;
-  color: #a94442;
-  background-color: #f2dede;
-  border: 1px solid #ebccd1;
-  min-width: 300px;
-  max-width: 400px;
+  padding: 15px;
+  margin-bottom: 20px;
+  border-radius: 4px;
+  color: #a94442; /* Cor do texto */
+  background-color: #f2dede; /* Cor do fundo */
+  border: 1px solid #ebccd1; /* Cor da borda */
+  width: 100%;
   box-sizing: border-box;
   text-align: center;
   opacity: 1;
   transition: opacity 0.5s ease;
-  font-weight: bold;
-  position: fixed;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1000;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
-/* atenção a esse para a validacao do cadastro*/
+
 .custom-alert-success {
-  padding: 15px 20px;
-  border-radius: 8px;
-  color: #155724;
-  background-color: #d4edda;
-  border: 1px solid #c3e6cb;
-  min-width: 300px;
-  max-width: 400px;
+  padding: 15px;
+  margin-bottom: 20px;
+  border-radius: 4px;
+  color: #155724; /* Cor do texto */
+  background-color: #d4edda; /* Cor do fundo */
+  border: 1px solid #c3e6cb; /* Cor da borda */
+  width: 100%;
   box-sizing: border-box;
   text-align: center;
   opacity: 1;
-  transition: opacity 0.5s ease;
-  font-weight: bold;
-  position: fixed;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1000;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: opacity 0.5s ease; /* Efeito de fade out */
 }
 
 .cadastro-link {
-  text-align: center; 
-  width: 100%;  
-  margin-top: 15px; 
+  text-align: center;
+  width: 100%;
+  margin-top: 15px;
   margin-bottom: 20px;
 }
 
 .whatsapp-float {
-    position: fixed;
-    width: 60px;
-    height: 60px;
-    bottom: 20px;
-    right: 20px;
-    background-color: #25D366;
-    border-radius: 50%;
-    box-shadow: 2px 2px 10px rgba(0,0,0,0.3);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
+  position: fixed;
+  width: 60px;
+  height: 60px;
+  bottom: 20px;
+  right: 20px;
+  background-color: #25D366;
+  border-radius: 50%;
+  box-shadow: 2px 2px 10px rgba(0,0,0,0.3);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
 }
 
 .whatsapp-float img {
-    width: 35px;
-    height: 35px;
+  width: 35px;
+  height: 35px;
 }
 
 .google-btn {
@@ -171,5 +157,3 @@ body {
   background-color: #f7f8f8;
   box-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
-
-

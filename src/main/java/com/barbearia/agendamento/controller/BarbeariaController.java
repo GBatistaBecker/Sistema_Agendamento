@@ -1,11 +1,19 @@
 package com.barbearia.agendamento.controller;
 
+import java.awt.*;
+import java.io.ByteArrayOutputStream;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
 import com.barbearia.agendamento.service.EmailService;
+import com.lowagie.text.*;
+import com.lowagie.text.Font;
+import com.lowagie.text.pdf.PdfPCell;
+import com.lowagie.text.pdf.PdfPTable;
+import com.lowagie.text.pdf.PdfWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.http.*;
@@ -161,10 +169,6 @@ public class BarbeariaController {
 
     @PostMapping("/login")
     public String verificarCliente(
-            @Parameter(description = "Nome completo do cliente", example = "João da Silva") @RequestParam String nomeCliente,
-
-            @Parameter(description = "Telefone com DDD", example = "(11)99999-8888") @RequestParam String telefoneCliente,
-
             @RequestParam String emailUsuario,
             @RequestParam String senhaUsuario,
             RedirectAttributes redirectAttributes,
@@ -181,7 +185,7 @@ public class BarbeariaController {
         }
 
         // Buscar usuário pelo email
-        Optional<Usuario> usuarioOpt = usuarioRepository.findByEmailUsuario(emailUsuario);
+        Optional<Usuario> usuarioOpt = usuarioRepository.findByEmailUsuario(emailUsuario.trim());
 
         if (usuarioOpt.isEmpty()) {
             redirectAttributes.addFlashAttribute("erroLogin", "Usuário não encontrado.");
@@ -190,11 +194,16 @@ public class BarbeariaController {
 
         Usuario usuario = usuarioOpt.get();
 
+        System.out.println("Email: " + emailUsuario);
+        System.out.println("Senha digitada: " + senhaUsuario);
+        System.out.println("Senha banco: " + usuario.getSenhaUsuario());
+
         // verificar senha
         if (!usuario.getSenhaUsuario().equals(senhaUsuario)) {
             redirectAttributes.addFlashAttribute("erroLogin", "Email ou senha incorretos.");
             return "redirect:/barbearia/login";
         }
+
 
         session.setAttribute("usuarioLogado", usuario);
 
@@ -339,16 +348,16 @@ public class BarbeariaController {
     public ResponseEntity<String> excluirAgendamento(
             @Parameter(description = "ID do agendamento", example = "5") @RequestParam Integer idAgendamento,
             HttpSession session) {
-        Cliente cliente = (Cliente) session.getAttribute("usuarioLogado");
-        if (cliente == null)
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Cliente não logado.");
+        Usuario usuario = (Usuario) session.getAttribute("usuarioLogado");
+        if (usuario == null)
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuário não logado.");
 
         Optional<Agendamento> agendamentoOpt = agendamentoRepository.findById(idAgendamento);
         if (agendamentoOpt.isEmpty())
             return ResponseEntity.badRequest().body("Agendamento não encontrado.");
 
         Agendamento agendamento = agendamentoOpt.get();
-        if (!agendamento.getCliente().getIdCliente().equals(cliente.getIdCliente())) {
+        if (!agendamento.getCliente().getIdCliente().equals(usuario.getCliente().getIdCliente())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Não autorizado.");
         }
 
@@ -372,7 +381,7 @@ public class BarbeariaController {
     @GetMapping("/logout")
     public String logout(HttpSession session){
         session.invalidate();
-        return "redirect:/login";
+        return "redirect:/barbearia/login";
     }
 
     // === ROTAS DE FUNCIONÁRIO (Admin) ===
@@ -573,4 +582,188 @@ public class BarbeariaController {
         return "relatorio";
 
     }
+
+    @Operation(summary = "Exportar relatório em PDF", description = "Exporta todos os agendamentos filtrados e ordenados em formato PDF.")
+    @GetMapping("/relatorio/exportar")
+    public ResponseEntity<byte[]> exportarRelatorioPdf(
+            @RequestParam(required = false) String ordenar,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String nome) {
+
+        List<Agendamento> agendamentos = buscarAgendamentosFiltrados(ordenar, status, nome);
+
+        try {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            Document document = new Document(PageSize.A4.rotate());
+            PdfWriter.getInstance(document, baos);
+            document.open();
+
+            // Título
+            Font fontTitulo = new Font(Font.HELVETICA, 18, Font.BOLD, new Color(0, 0, 0));
+            Paragraph titulo = new Paragraph("Relatório de Agendamentos - Pitbull Barber", fontTitulo);
+            titulo.setAlignment(Element.ALIGN_CENTER);
+            titulo.setSpacingAfter(20);
+            document.add(titulo);
+
+            // Informações de filtro
+            Font fontFiltro = new Font(Font.HELVETICA, 10, Font.NORMAL, new Color(100, 100, 100));
+            StringBuilder filtroInfo = new StringBuilder("Filtros aplicados: ");
+            if (status != null && !status.isEmpty()) {
+                filtroInfo.append("Status: ").append(status).append(" | ");
+            }
+            if (nome != null && !nome.isEmpty()) {
+                filtroInfo.append("Cliente: ").append(nome).append(" | ");
+            }
+            if (ordenar != null && !ordenar.isEmpty()) {
+                filtroInfo.append("Ordenação: ").append(ordenar).append(" | ");
+            }
+            Paragraph filtros = new Paragraph(filtroInfo.toString(), fontFiltro);
+            filtros.setSpacingAfter(10);
+            document.add(filtros);
+
+            // Data de geração
+            Paragraph dataGeracao = new Paragraph("Gerado em: " + LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")), fontFiltro);
+            dataGeracao.setSpacingAfter(20);
+            document.add(dataGeracao);
+
+            // Tabela
+            PdfPTable table = new PdfPTable(6);
+            table.setWidthPercentage(100);
+            table.setSpacingBefore(10);
+
+            // Cabeçalhos
+            Font fontHeader = new Font(Font.HELVETICA, 12, Font.BOLD, new Color(255, 255, 255));
+            Color headerColor = new Color(33, 37, 41);
+
+            String[] headers = {"#", "Cliente", "Serviço", "Data", "Hora", "Status"};
+            for (String header : headers) {
+                PdfPCell cell = new PdfPCell(new Phrase(header, fontHeader));
+                cell.setBackgroundColor(headerColor);
+                cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+                cell.setPadding(8);
+                table.addCell(cell);
+            }
+
+            // Dados
+            Font fontData = new Font(Font.HELVETICA, 10, Font.NORMAL);
+            DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+            int contador = 1;
+            for (Agendamento a : agendamentos) {
+                // Cor alternada para linhas
+                Color rowColor = (contador % 2 == 0) ? new Color(248, 249, 250) : new Color(255, 255, 255);
+
+                PdfPCell cellNum = new PdfPCell(new Phrase(String.valueOf(contador), fontData));
+                cellNum.setBackgroundColor(rowColor);
+                cellNum.setHorizontalAlignment(Element.ALIGN_CENTER);
+                table.addCell(cellNum);
+
+                PdfPCell cellCliente = new PdfPCell(new Phrase(a.getCliente().getNomeCliente(), fontData));
+                cellCliente.setBackgroundColor(rowColor);
+                table.addCell(cellCliente);
+
+                PdfPCell cellServico = new PdfPCell(new Phrase(a.getServico().getNomeCorte(), fontData));
+                cellServico.setBackgroundColor(rowColor);
+                cellServico.setHorizontalAlignment(Element.ALIGN_CENTER);
+                table.addCell(cellServico);
+
+                PdfPCell cellData = new PdfPCell(new Phrase(a.getDataAgendamento().format(dateFormatter), fontData));
+                cellData.setBackgroundColor(rowColor);
+                cellData.setHorizontalAlignment(Element.ALIGN_CENTER);
+                table.addCell(cellData);
+
+                PdfPCell cellHora = new PdfPCell(new Phrase(a.getHoraAgendamento().toString(), fontData));
+                cellHora.setBackgroundColor(rowColor);
+                cellHora.setHorizontalAlignment(Element.ALIGN_CENTER);
+                table.addCell(cellHora);
+
+                PdfPCell cellStatus = new PdfPCell(new Phrase(a.getStatusAgendamento().name(), fontData));
+                cellStatus.setBackgroundColor(rowColor);
+                cellStatus.setHorizontalAlignment(Element.ALIGN_CENTER);
+                table.addCell(cellStatus);
+
+                contador++;
+            }
+
+            document.add(table);
+
+            // Total
+            Font fontTotal = new Font(Font.HELVETICA, 12, Font.BOLD);
+            Paragraph total = new Paragraph("Total de agendamentos: " + agendamentos.size(), fontTotal);
+            total.setSpacingBefore(20);
+            total.setAlignment(Element.ALIGN_RIGHT);
+            document.add(total);
+
+            document.close();
+
+            HttpHeaders headersPdf = new HttpHeaders();
+            headersPdf.setContentType(MediaType.APPLICATION_PDF);
+            headersPdf.setContentDispositionFormData("attachment", "relatorio-agendamentos.pdf");
+
+            return new ResponseEntity<>(baos.toByteArray(), headersPdf, HttpStatus.OK);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+    private List<Agendamento> buscarAgendamentosFiltrados(String ordenar, String status, String nome) {
+        List<Agendamento> agendamentos;
+
+        if ("corte".equalsIgnoreCase(ordenar)) {
+            List<Object[]> ranking = agendamentoRepository.findServicosMaisFeitos();
+            List<String> ordemServicos = ranking.stream()
+                    .map(obj -> (String) obj[0])
+                    .toList();
+
+            agendamentos = agendamentoRepository.findAll();
+
+            if (status != null && !status.isEmpty()) {
+                agendamentos = agendamentos.stream()
+                        .filter(a -> a.getStatusAgendamento().name().equalsIgnoreCase(status))
+                        .toList();
+            }
+
+            if (nome != null && !nome.isEmpty()) {
+                agendamentos = agendamentos.stream()
+                        .filter(a -> a.getCliente().getNomeCliente().toLowerCase().contains(nome.toLowerCase()))
+                        .toList();
+            }
+
+            agendamentos = agendamentos.stream()
+                    .sorted((a, b) -> {
+                        int idxA = ordemServicos.indexOf(a.getServico().getNomeCorte());
+                        int idxB = ordemServicos.indexOf(b.getServico().getNomeCorte());
+                        if (idxA == -1) idxA = ordemServicos.size();
+                        if (idxB == -1) idxB = ordemServicos.size();
+                        int cmp = Integer.compare(idxA, idxB);
+                        if (cmp == 0) {
+                            cmp = a.getDataAgendamento().compareTo(b.getDataAgendamento());
+                            if (cmp == 0) {
+                                cmp = a.getHoraAgendamento().compareTo(b.getHoraAgendamento());
+                            }
+                        }
+                        return cmp;
+                    })
+                    .toList();
+        } else {
+            Sort sort = Sort.by("dataAgendamento").ascending().and(Sort.by("horaAgendamento"));
+            agendamentos = agendamentoRepository.findAll(sort);
+
+            if (status != null && !status.isEmpty()) {
+                agendamentos = agendamentos.stream()
+                        .filter(a -> a.getStatusAgendamento().name().equalsIgnoreCase(status))
+                        .toList();
+            }
+
+            if (nome != null && !nome.isEmpty()) {
+                agendamentos = agendamentos.stream()
+                        .filter(a -> a.getCliente().getNomeCliente().toLowerCase().contains(nome.toLowerCase()))
+                        .toList();
+            }
+        }
+
+        return agendamentos;
+    }
+
 }

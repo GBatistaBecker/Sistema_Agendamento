@@ -39,7 +39,7 @@ h1 {
 }
 
 /* ===============================
-   CARDS PRINCIPAIS (HISTÓRICO / AGENDAR)
+   CARDS PRINCIPAIS (HISTÃ“RICO / AGENDAR)
    =============================== */
 
 .dashboard-card {
@@ -105,7 +105,7 @@ h1 {
 }
 
 /* ===============================
-   CARDS DE SERVIÇO
+   CARDS DE SERVIÃ‡O
    =============================== */
 
 .servico-selecao-card {
@@ -198,7 +198,7 @@ h1 {
 }
 
 /* ===============================
-   BOTÃO CONFIRMAR
+   BOTÃƒO CONFIRMAR
    =============================== */
 
 #btnConfirmarAgendamento {
@@ -214,7 +214,7 @@ h1 {
   cursor: not-allowed;
 }
 
-/* Remove brilho azul padrão Bootstrap */
+/* Remove brilho azul padrÃ£o Bootstrap */
 
 .btn-primary,
 .btn-primary:focus,
@@ -235,7 +235,7 @@ h1 {
   top: 0;
   width: 12%;      /* largura do mapa (ajuste se quiser) */
   height: 15vh;   /* altura total da tela */
-  z-index: 1;      /* abaixo da logo flutuante (que está z-index 2) */
+  z-index: 1;      /* abaixo da logo flutuante (que estÃ¡ z-index 2) */
   border-radius: 5px;
   margin: 10px 10px;
 }
@@ -249,7 +249,7 @@ h1 {
 }
 
 /* ===============================
-   LISTA DE AGENDAMENTOS (HIST�RICO)
+   LISTA DE AGENDAMENTOS (HISTÓRICO)
    =============================== */
 
 #listaAgendamentos {
@@ -276,28 +276,6 @@ h1 {
   background-color: var(--cinza-soft);
   transform: translateX(2px);
   transition: all 0.2s ease;
-.modal-footer{
-  background-color: var(--cinza-escuro)
-}
-
-.whatsapp-float {
-    position: fixed;
-    width: 60px;
-    height: 60px;
-    bottom: 20px;
-    right: 20px;
-    background-color: #25D366;
-    border-radius: 50%;
-    box-shadow: 2px 2px 10px rgba(0,0,0,0.3);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
-}
-
-.whatsapp-float img {
-  width: 35px;
-  height: 35px;
 }
 
 .btn-excluir {
@@ -308,20 +286,36 @@ h1 {
   padding: 4px 8px;
   border-radius: 4px;
   transition: all 0.2s ease;
-.removing {
-  opacity: 0;
-  transform: translateX(40px);
-  transition: all 0.35s ease;
 }
 
 .btn-excluir:hover {
   background-color: rgba(220, 53, 69, 0.2);
   transform: scale(1.1);
+}
+
+.whatsapp-float {
+  position: fixed;
+  width: 60px;
+  height: 60px;
+  bottom: 20px;
+  right: 20px;
+  background-color: #25D366;
+  border-radius: 50%;
+  box-shadow: 2px 2px 10px rgba(0,0,0,0.3);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.whatsapp-float img {
+  width: 35px;
+  height: 35px;
+}
+
 .btn-logout{
   position: fixed;
   top: 20px;
   right: 20px;
   z-index: 1000;
-}
-}}
 }
