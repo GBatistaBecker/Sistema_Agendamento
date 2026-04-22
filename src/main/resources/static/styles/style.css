@@ -35,8 +35,12 @@ body {
   transform: scale(1.05);
 }
 
-.login-container {
+/* Adicione .cadastro-container junto com a .login-container */
+.login-container, .cadastro-container {
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .login-logo {
