@@ -57,7 +57,7 @@
             </li>
           </ul>
         </div>
-        <a href="/barbearia/relatorio/exportar" class="btn btn-success">
+        <a th:href="@{/barbearia/relatorio/exportar(ordenar=${ordenar}, status=${status}, nome=${nome})}" class="btn btn-success">
           <i class="bi bi-download"></i> Exportar Relatórios
         </a>
       </div>
