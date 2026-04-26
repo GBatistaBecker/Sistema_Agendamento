@@ -22,7 +22,7 @@ public class Permissao {
     private TipoPermissao tipoPermissao;
 
     public enum TipoPermissao {
-        ADMIN, USER
+        ADMIN, CLIENTE, USER
     }
 
     public Permissao() {
