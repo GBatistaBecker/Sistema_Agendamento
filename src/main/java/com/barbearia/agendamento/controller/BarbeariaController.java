@@ -14,9 +14,18 @@ import com.lowagie.text.Font;
 import com.lowagie.text.pdf.PdfPCell;
 import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.http.*;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -59,31 +68,26 @@ public class BarbeariaController {
     @Autowired
     UsuarioRepository usuarioRepository;
 
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
+
     // === Páginas principais ===
     @GetMapping("/cadastro")
     public String mostrarCadastro() {
         return "cadastro";
     }
 
-    @Operation(summary = "Cadastrar novo cliente", description = "Cria um novo cliente na base de dados da barbearia. Retorna redirecionamento para a tela de login em caso de sucesso.")
+    @Operation(summary = "Cadastrar novo cliente", description = "Cria um novo cliente na base de dados da barbearia.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Cadastro realizado com sucesso"),
             @ApiResponse(responseCode = "400", description = "Dados inválidos ou cliente já existente")
     })
     @PostMapping("/cadastro")
     public String cadastrarCliente(
-
-            @Parameter(description = "Nome completo do cliente", example = "João da Silva")
             @RequestParam String nomeCliente,
-
-            @Parameter(description = "Telefone com DDD", example = "(11)99999-8888")
             @RequestParam String telefoneCliente,
-
-            @Parameter(description = "E-mail válido", example = "joao@gmail.com")
             @RequestParam String emailCliente,
-
             @RequestParam String senhaUsuario,
-
             RedirectAttributes redirectAttributes) {
 
         String telefoneLimpo = telefoneCliente.replaceAll("\\D", "");
@@ -118,33 +122,21 @@ public class BarbeariaController {
             return "redirect:/barbearia/cadastro";
         }
 
-        // =========================
-        // SALVAR CLIENTE
-        // =========================
-
         Cliente novoCliente = new Cliente();
         novoCliente.setNomeCliente(nomeCliente);
         novoCliente.setTelefoneCliente(telefoneCliente);
         novoCliente.setEmailCliente(emailCliente);
-
         clienteRepository.save(novoCliente);
 
-        // =========================
-        // CRIAR USUÁRIO
-        // =========================
-
         Usuario usuario = new Usuario();
-
         usuario.setEmailUsuario(emailCliente);
-        usuario.setSenhaUsuario(senhaUsuario);
+        usuario.setSenhaUsuario(passwordEncoder.encode(senhaUsuario));
         usuario.setCliente(novoCliente);
 
         Permissao permissao = new Permissao();
-        permissao.setIdPermissao(1); // Cliente
-
+        permissao.setIdPermissao(1);
         usuario.setPermissao(permissao);
 
-        System.out.println("SALVANDO USUARIO...");
         usuarioRepository.save(usuario);
 
         redirectAttributes.addFlashAttribute("sucessoCadastro", "Cadastro realizado com sucesso! Faça login.");
@@ -161,18 +153,18 @@ public class BarbeariaController {
         return "login";
     }
 
-    @Operation(summary = "Login de cliente", description = "Valida o nome e senha do cliente para iniciar sessão.")
+    @Operation(summary = "Login de cliente")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Login bem-sucedido"),
             @ApiResponse(responseCode = "400", description = "Dados inválidos ou cliente não encontrado")
     })
-
     @PostMapping("/login")
     public String verificarCliente(
             @RequestParam String emailUsuario,
             @RequestParam String senhaUsuario,
             RedirectAttributes redirectAttributes,
-            HttpSession session) {
+            HttpSession session,
+            HttpServletRequest request) {
 
         if (emailUsuario.trim().isEmpty()) {
             redirectAttributes.addFlashAttribute("erroLogin", "Email não pode ser vazio.");
@@ -184,7 +176,6 @@ public class BarbeariaController {
             return "redirect:/barbearia/login";
         }
 
-        // Buscar usuário pelo email
         Optional<Usuario> usuarioOpt = usuarioRepository.findByEmailUsuario(emailUsuario.trim());
 
         if (usuarioOpt.isEmpty()) {
@@ -194,24 +185,28 @@ public class BarbeariaController {
 
         Usuario usuario = usuarioOpt.get();
 
-        System.out.println("Email: " + emailUsuario);
-        System.out.println("Senha digitada: " + senhaUsuario);
-        System.out.println("Senha banco: " + usuario.getSenhaUsuario());
-
-        // verificar senha
-        if (!usuario.getSenhaUsuario().equals(senhaUsuario)) {
+        if (!passwordEncoder.matches(senhaUsuario, usuario.getSenhaUsuario())) {
             redirectAttributes.addFlashAttribute("erroLogin", "Email ou senha incorretos.");
             return "redirect:/barbearia/login";
         }
 
+        // Registra no Spring Security
+        var authorities = List.of(new SimpleGrantedAuthority(
+                "ROLE_" + usuario.getPermissao().getTipoPermissao().name()
+        ));
+        var auth = new UsernamePasswordAuthenticationToken(usuario, null, authorities);
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
+        HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
+        repo.saveContext(SecurityContextHolder.getContext(), request,
+                (HttpServletResponse) request.getServletContext()
+                        .getAttribute("javax.servlet.http.HttpServletResponse"));
 
         session.setAttribute("usuarioLogado", usuario);
 
-        // verificar permissão
         if (usuario.getPermissao().getTipoPermissao() == TipoPermissao.ADMIN) {
             return "redirect:/barbearia/admin";
         }
-
         return "redirect:/barbearia/servicos";
     }
 
@@ -220,7 +215,6 @@ public class BarbeariaController {
         model.addAttribute("servicos", servicoRepository.findAll());
         return "servicos";
     }
-
 
     @GetMapping("/agendamentos")
     public String exibirAgendamentos(@RequestParam(required = false) Integer servicoId, Model model) {
@@ -234,8 +228,7 @@ public class BarbeariaController {
         return "horarios";
     }
 
-
-    @Operation(summary = "Realizar agendamento", description = "Cria um novo agendamento para o cliente logado, vinculando um serviço e horário.")
+    @Operation(summary = "Realizar agendamento")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Agendamento criado com sucesso"),
             @ApiResponse(responseCode = "400", description = "Horário já ocupado ou dados inválidos"),
@@ -244,12 +237,10 @@ public class BarbeariaController {
     @PostMapping("/agendar")
     @ResponseBody
     public ResponseEntity<String> realizarAgendamento(
-            @Parameter(description = "ID do serviço", example = "1") @RequestParam Integer idServico,
-            @Parameter(description = "Data no formato YYYY-MM-DD", example = "2025-11-02") @RequestParam String dataAgendamento,
-            @Parameter(description = "Hora no formato HH:mm", example = "15:30") @RequestParam String horaAgendamento,
-            HttpSession session) {
-
-        Usuario usuario = (Usuario) session.getAttribute("usuarioLogado");
+            @RequestParam Integer idServico,
+            @RequestParam String dataAgendamento,
+            @RequestParam String horaAgendamento,
+            @AuthenticationPrincipal Usuario usuario) { // ← substituído session
 
         if (usuario == null)
             return ResponseEntity.badRequest().body("Usuário não logado.");
@@ -274,7 +265,6 @@ public class BarbeariaController {
 
         agendamentoRepository.save(agendamento);
 
-        // 🔥 ENVIO DE EMAIL
         String email = cliente.getEmailCliente();
         String nome = cliente.getNomeCliente();
 
@@ -285,11 +275,7 @@ public class BarbeariaController {
                 "Aguardamos você!";
 
         try {
-            emailService.enviarEmail(
-                    email,
-                    "Agendamento Realizado",
-                    mensagem
-            );
+            emailService.enviarEmail(email, "Agendamento Realizado", mensagem);
             System.out.println("EMAIL ENVIADO PARA: " + email);
         } catch (Exception e) {
             System.out.println("ERRO AO ENVIAR EMAIL:");
@@ -299,7 +285,7 @@ public class BarbeariaController {
         return ResponseEntity.ok("Agendamento realizado com sucesso.");
     }
 
-    @Operation(summary = "Listar agendamentos do cliente", description = "Retorna uma lista textual dos agendamentos do cliente atualmente logado.")
+    @Operation(summary = "Listar agendamentos do cliente")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Lista retornada com sucesso"),
             @ApiResponse(responseCode = "401", description = "Cliente não autenticado")
@@ -307,25 +293,17 @@ public class BarbeariaController {
     @GetMapping("/agendamentos-do-usuario")
     @ResponseBody
     public ResponseEntity<String> listarAgendamentosDoUsuario(
-            HttpSession session,
-            @Parameter(description = "Filtrar por ID do serviço (opcional)", example = "1") @RequestParam(value = "idServico", required = false) Long idServico) {
+            @AuthenticationPrincipal Usuario usuario, // ← substituído session
+            @RequestParam(value = "idServico", required = false) Long idServico) {
 
-        Usuario usuario = (Usuario) session.getAttribute("usuarioLogado");
         Cliente cliente = usuario.getCliente();
-        System.out.println("=== DEBUG: Cliente na sessão ===");
-        System.out.println("Cliente: " + (cliente != null ? cliente.getNomeCliente() : "NULL"));
-        System.out.println("ID Cliente: " + (cliente != null ? cliente.getIdCliente() : "NULL"));
+
         if (cliente == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
         ListaOrdenadaAgendamento fila = new ListaOrdenadaAgendamento();
         List<Agendamento> agendamentos = agendamentoRepository.findByClienteId(cliente.getIdCliente());
-        System.out.println("=== DEBUG: Agendamentos encontrados ===");
-        System.out.println("Quantidade: " + agendamentos.size());
-        for (Agendamento ag : agendamentos) {
-            System.out.println("Agendamento ID: " + ag.getIdAgendamento() + " - Data: " + ag.getDataAgendamento());
-        }
 
         for (Agendamento ag : agendamentos) {
             if (idServico == null || ag.getServico().getIdCorte().equals(idServico)) {
@@ -336,7 +314,7 @@ public class BarbeariaController {
         return ResponseEntity.ok(fila.viewCliente());
     }
 
-    @Operation(summary = "Excluir agendamento", description = "Permite que o cliente exclua um agendamento existente.")
+    @Operation(summary = "Excluir agendamento")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Agendamento excluído com sucesso"),
             @ApiResponse(responseCode = "401", description = "Cliente não logado"),
@@ -346,9 +324,9 @@ public class BarbeariaController {
     @PostMapping("/excluir-agendamento")
     @ResponseBody
     public ResponseEntity<String> excluirAgendamento(
-            @Parameter(description = "ID do agendamento", example = "5") @RequestParam Integer idAgendamento,
-            HttpSession session) {
-        Usuario usuario = (Usuario) session.getAttribute("usuarioLogado");
+            @RequestParam Integer idAgendamento,
+            @AuthenticationPrincipal Usuario usuario) { // ← substituído session
+
         if (usuario == null)
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuário não logado.");
 
@@ -365,13 +343,14 @@ public class BarbeariaController {
         return ResponseEntity.ok("Agendamento excluído com sucesso.");
     }
 
-    @Operation(summary = "Obter horários ocupados", description = "Retorna uma lista de horários já agendados para determinada data e serviço.")
-    @ApiResponse(responseCode = "200", description = "Lista de horários ocupados retornada com sucesso", content = @Content(mediaType = "application/json", schema = @Schema(implementation = String.class)))
+    @Operation(summary = "Obter horários ocupados")
+    @ApiResponse(responseCode = "200", description = "Lista de horários ocupados retornada com sucesso",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = String.class)))
     @GetMapping("/horarios-ocupados")
     @ResponseBody
     public List<String> obterHorariosOcupados(
-            @Parameter(description = "Data no formato YYYY-MM-DD", example = "2025-11-05") @RequestParam String data,
-            @Parameter(description = "ID do serviço", example = "2") @RequestParam Integer idServico) {
+            @RequestParam String data,
+            @RequestParam Integer idServico) {
 
         LocalDate dataAgendamento = LocalDate.parse(data);
         List<Agendamento> agendamentos = agendamentoRepository.findByDataAgendamento(dataAgendamento);
@@ -379,8 +358,9 @@ public class BarbeariaController {
     }
 
     @GetMapping("/logout")
-    public String logout(HttpSession session){
+    public String logout(HttpSession session) {
         session.invalidate();
+        SecurityContextHolder.clearContext();
         return "redirect:/barbearia/login";
     }
 
@@ -420,12 +400,7 @@ public class BarbeariaController {
         return "redirect:/barbearia/loginadm";
     }
 
-    @Operation(summary = "Confirmar agendamento (Admin)", description = "Marca um agendamento como concluído.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Agendamento confirmado"),
-            @ApiResponse(responseCode = "404", description = "Agendamento não encontrado")
-    })
-
+    @PreAuthorize("hasRole('ADMIN')") // ← adicionado
     @GetMapping("/admin")
     public String exibirAgendamentosAdmin(
             @RequestParam(defaultValue = "0") int page,
@@ -442,7 +417,6 @@ public class BarbeariaController {
             fila.inserirOrdenado(a);
         }
 
-        // Verifica se há agendamentos
         boolean semAgendamentos = agendamentosPage.isEmpty();
 
         model.addAttribute("htmlAgendamentos", fila.viewAdmin());
@@ -455,10 +429,8 @@ public class BarbeariaController {
         return "admin";
     }
 
-
     @PostMapping("/admin/{id}/confirmar")
-    public ResponseEntity<String> confirmarAgendamento(
-            @Parameter(description = "ID do agendamento", example = "3") @PathVariable Integer id) {
+    public ResponseEntity<String> confirmarAgendamento(@PathVariable Integer id) {
 
         Optional<Agendamento> opt = agendamentoRepository.findById(id);
         if (opt.isPresent()) {
@@ -470,14 +442,13 @@ public class BarbeariaController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Agendamento não encontrado");
     }
 
-    @Operation(summary = "Cancelar agendamento (Admin)", description = "Marca um agendamento como cancelado.")
+    @Operation(summary = "Cancelar agendamento (Admin)")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Agendamento cancelado"),
             @ApiResponse(responseCode = "404", description = "Agendamento não encontrado")
     })
     @PostMapping("/admin/{id}/cancelar")
-    public ResponseEntity<String> cancelarAgendamento(
-            @Parameter(description = "ID do agendamento", example = "3") @PathVariable Integer id) {
+    public ResponseEntity<String> cancelarAgendamento(@PathVariable Integer id) {
 
         Optional<Agendamento> opt = agendamentoRepository.findById(id);
         if (opt.isPresent()) {
@@ -489,6 +460,7 @@ public class BarbeariaController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Agendamento não encontrado");
     }
 
+    @PreAuthorize("hasRole('ADMIN')") // ← adicionado
     @GetMapping("/relatorio")
     public String relatorio(
             @RequestParam(required = false) String ordenar,
@@ -498,8 +470,7 @@ public class BarbeariaController {
             @RequestParam(defaultValue = "10") int size,
             Model model) {
 
-        if (page == null)
-            page = 0;
+        if (page == null) page = 0;
 
         Pageable pageable = PageRequest.of(page, size);
         Page<Agendamento> pagina;
@@ -528,10 +499,8 @@ public class BarbeariaController {
                     .sorted((a, b) -> {
                         int idxA = ordemServicos.indexOf(a.getServico().getNomeCorte());
                         int idxB = ordemServicos.indexOf(b.getServico().getNomeCorte());
-                        if (idxA == -1)
-                            idxA = ordemServicos.size();
-                        if (idxB == -1)
-                            idxB = ordemServicos.size();
+                        if (idxA == -1) idxA = ordemServicos.size();
+                        if (idxB == -1) idxB = ordemServicos.size();
                         int cmp = Integer.compare(idxA, idxB);
                         if (cmp == 0) {
                             cmp = a.getDataAgendamento().compareTo(b.getDataAgendamento());
@@ -580,10 +549,10 @@ public class BarbeariaController {
         model.addAttribute("totalPaginas", pagina.getTotalPages());
 
         return "relatorio";
-
     }
 
-    @Operation(summary = "Exportar relatório em PDF", description = "Exporta todos os agendamentos filtrados e ordenados em formato PDF.")
+    @PreAuthorize("hasRole('ADMIN')") // ← adicionado
+    @Operation(summary = "Exportar relatório em PDF")
     @GetMapping("/relatorio/exportar")
     public ResponseEntity<byte[]> exportarRelatorioPdf(
             @RequestParam(required = false) String ordenar,
@@ -598,40 +567,30 @@ public class BarbeariaController {
             PdfWriter.getInstance(document, baos);
             document.open();
 
-            // Título
             Font fontTitulo = new Font(Font.HELVETICA, 18, Font.BOLD, new Color(0, 0, 0));
             Paragraph titulo = new Paragraph("Relatório de Agendamentos - Pitbull Barber", fontTitulo);
             titulo.setAlignment(Element.ALIGN_CENTER);
             titulo.setSpacingAfter(20);
             document.add(titulo);
 
-            // Informações de filtro
             Font fontFiltro = new Font(Font.HELVETICA, 10, Font.NORMAL, new Color(100, 100, 100));
             StringBuilder filtroInfo = new StringBuilder("Filtros aplicados: ");
-            if (status != null && !status.isEmpty()) {
-                filtroInfo.append("Status: ").append(status).append(" | ");
-            }
-            if (nome != null && !nome.isEmpty()) {
-                filtroInfo.append("Cliente: ").append(nome).append(" | ");
-            }
-            if (ordenar != null && !ordenar.isEmpty()) {
-                filtroInfo.append("Ordenação: ").append(ordenar).append(" | ");
-            }
+            if (status != null && !status.isEmpty()) filtroInfo.append("Status: ").append(status).append(" | ");
+            if (nome != null && !nome.isEmpty()) filtroInfo.append("Cliente: ").append(nome).append(" | ");
+            if (ordenar != null && !ordenar.isEmpty()) filtroInfo.append("Ordenação: ").append(ordenar).append(" | ");
+
             Paragraph filtros = new Paragraph(filtroInfo.toString(), fontFiltro);
             filtros.setSpacingAfter(10);
             document.add(filtros);
 
-            // Data de geração
             Paragraph dataGeracao = new Paragraph("Gerado em: " + LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")), fontFiltro);
             dataGeracao.setSpacingAfter(20);
             document.add(dataGeracao);
 
-            // Tabela
             PdfPTable table = new PdfPTable(6);
             table.setWidthPercentage(100);
             table.setSpacingBefore(10);
 
-            // Cabeçalhos
             Font fontHeader = new Font(Font.HELVETICA, 12, Font.BOLD, new Color(255, 255, 255));
             Color headerColor = new Color(33, 37, 41);
 
@@ -644,13 +603,11 @@ public class BarbeariaController {
                 table.addCell(cell);
             }
 
-            // Dados
             Font fontData = new Font(Font.HELVETICA, 10, Font.NORMAL);
             DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
             int contador = 1;
             for (Agendamento a : agendamentos) {
-                // Cor alternada para linhas
                 Color rowColor = (contador % 2 == 0) ? new Color(248, 249, 250) : new Color(255, 255, 255);
 
                 PdfPCell cellNum = new PdfPCell(new Phrase(String.valueOf(contador), fontData));
@@ -687,7 +644,6 @@ public class BarbeariaController {
 
             document.add(table);
 
-            // Total
             Font fontTotal = new Font(Font.HELVETICA, 12, Font.BOLD);
             Paragraph total = new Paragraph("Total de agendamentos: " + agendamentos.size(), fontTotal);
             total.setSpacingBefore(20);
@@ -739,9 +695,7 @@ public class BarbeariaController {
                         int cmp = Integer.compare(idxA, idxB);
                         if (cmp == 0) {
                             cmp = a.getDataAgendamento().compareTo(b.getDataAgendamento());
-                            if (cmp == 0) {
-                                cmp = a.getHoraAgendamento().compareTo(b.getHoraAgendamento());
-                            }
+                            if (cmp == 0) cmp = a.getHoraAgendamento().compareTo(b.getHoraAgendamento());
                         }
                         return cmp;
                     })
@@ -765,5 +719,4 @@ public class BarbeariaController {
 
         return agendamentos;
     }
-
 }
