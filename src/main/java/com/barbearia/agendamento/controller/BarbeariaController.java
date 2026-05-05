@@ -240,7 +240,9 @@ public class BarbeariaController {
             @RequestParam Integer idServico,
             @RequestParam String dataAgendamento,
             @RequestParam String horaAgendamento,
-            @AuthenticationPrincipal Usuario usuario) { // ← substituído session
+            HttpSession session) {
+
+        Usuario usuario = (Usuario) session.getAttribute("usuarioLogado");
 
         if (usuario == null)
             return ResponseEntity.badRequest().body("Usuário não logado.");
@@ -293,17 +295,25 @@ public class BarbeariaController {
     @GetMapping("/agendamentos-do-usuario")
     @ResponseBody
     public ResponseEntity<String> listarAgendamentosDoUsuario(
-            @AuthenticationPrincipal Usuario usuario, // ← substituído session
+            HttpSession session,
             @RequestParam(value = "idServico", required = false) Long idServico) {
+
+        Usuario usuario = (Usuario) session.getAttribute("usuarioLogado");
+
+        if (usuario == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuário não logado.");
+        }
 
         Cliente cliente = usuario.getCliente();
 
         if (cliente == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Cliente não encontrado.");
         }
 
         ListaOrdenadaAgendamento fila = new ListaOrdenadaAgendamento();
-        List<Agendamento> agendamentos = agendamentoRepository.findByClienteId(cliente.getIdCliente());
+
+        List<Agendamento> agendamentos =
+                agendamentoRepository.findByClienteId(cliente.getIdCliente());
 
         for (Agendamento ag : agendamentos) {
             if (idServico == null || ag.getServico().getIdCorte().equals(idServico)) {
@@ -325,21 +335,30 @@ public class BarbeariaController {
     @ResponseBody
     public ResponseEntity<String> excluirAgendamento(
             @RequestParam Integer idAgendamento,
-            @AuthenticationPrincipal Usuario usuario) { // ← substituído session
+            HttpSession session) {
 
-        if (usuario == null)
+        Usuario usuario = (Usuario) session.getAttribute("usuarioLogado");
+
+        if (usuario == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuário não logado.");
+        }
 
         Optional<Agendamento> agendamentoOpt = agendamentoRepository.findById(idAgendamento);
-        if (agendamentoOpt.isEmpty())
+
+        if (agendamentoOpt.isEmpty()) {
             return ResponseEntity.badRequest().body("Agendamento não encontrado.");
+        }
 
         Agendamento agendamento = agendamentoOpt.get();
-        if (!agendamento.getCliente().getIdCliente().equals(usuario.getCliente().getIdCliente())) {
+
+        if (!agendamento.getCliente().getIdCliente()
+                .equals(usuario.getCliente().getIdCliente())) {
+
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Não autorizado.");
         }
 
         agendamentoRepository.delete(agendamento);
+
         return ResponseEntity.ok("Agendamento excluído com sucesso.");
     }
 
